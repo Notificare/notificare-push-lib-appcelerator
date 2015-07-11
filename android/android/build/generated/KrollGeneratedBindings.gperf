@@ -1,0 +1,18 @@
+%define lookup-function-name lookupGeneratedInit
+%define class-name NotificareTitaniumAndroidBindings
+%{
+
+#include <string.h>
+#include <v8.h>
+#include <KrollBindings.h>
+
+#include "ti.notificare.NotificareTitaniumAndroidModule.h"
+#include "ti.notificare.ActivityWorkerProxy.h"
+
+
+%}
+struct titanium::bindings::BindEntry;
+%%
+ti.notificare.NotificareTitaniumAndroidModule, ::ti::notificare::NotificareTitaniumAndroidModule::bindProxy, ::ti::notificare::NotificareTitaniumAndroidModule::dispose
+ti.notificare.ActivityWorkerProxy, ::ti::notificare::notificaretitaniumandroid::ActivityWorkerProxy::bindProxy, ::ti::notificare::notificaretitaniumandroid::ActivityWorkerProxy::dispose
+%%

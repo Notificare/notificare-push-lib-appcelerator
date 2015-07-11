@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:module xmlns:ti="http://ti.appcelerator.org" xmlns:android="http://schemas.android.com/apk/res/android">
+	<!--
+		Similar to tiapp.xml, but contains module/platform specific
+		configuration in <iphone>, <android>, and <mobileweb> sections
+	-->
+	<iphone>
+	</iphone>
+	<android xmlns:android="http://schemas.android.com/apk/res/android">
+		<manifest>
+		
+		    <!-- PERMISSIONS -->
+		    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+		    <uses-permission android:name="android.permission.WAKE_LOCK" />
+		    <uses-permission android:name="android.permission.INTERNET" />
+		
+		    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+		    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+		    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+		    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+		    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+		
+		    <!-- This app has permission to register and receive message -->
+		    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+		
+		    <!-- PERMISSIONS REQUIRED for C2DM  -->
+		    <permission android:name="${tiapp.properties['id']}.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+		    <uses-permission android:name="${tiapp.properties['id']}.permission.C2D_MESSAGE" />
+		    
+		    <uses-permission android:name="android.permission.BLUETOOTH"/>
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+		
+		
+		    <!--<uses-permission android:name="com.android.vending.BILLING" />-->
+		
+		    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="22" />
+
+         
+		    <application>
+
+		  <!--
+		     BroadcastReceiver that will receive intents from GCM
+		     services and handle them to your app's IntentService.
+		     The com.google.android.c2dm.permission.SEND permission is necessary
+		     so only GCM services can send data messages for the app.
+		   -->
+		        <receiver
+		            android:name="re.notifica.push.gcm.PushReceiver"
+		            android:permission="com.google.android.c2dm.permission.SEND" >
+		            <intent-filter>
+		                <!-- Receives the actual messages. -->
+		                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+		                <!-- Receives the registration id. -->
+		                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+		                <!-- Replace with your package name -->
+		                <category android:name="${tiapp.properties['id']}" />
+		            </intent-filter>
+		        </receiver>
+		        
+		        <activity
+		            android:name="re.notifica.ui.NotificationActivity"
+		            android:screenOrientation="portrait"
+		            android:configChanges="keyboardHidden|orientation">
+		        </activity>
+		        <!--
+		            Service running in the background that receives your Push Notifications
+		         -->
+		        <service android:name="re.notifica.push.gcm.PushService"
+		            android:label="Notificare Push Service" />
+		
+		        <!--
+		            Receiver to dispatch GCM registration, push notifications and custom push actions.
+		            By default, it will register the device as an anonymous user, launch the default
+		            Notification activity declared below when receiving notifications, and will
+		            launch your main activity with a "custom action" intent when a user selected
+		            a custom push action.
+		            Most likely you will need customized registration and dispatching; please override
+		            this class or the BaseIntentReceiver parent class.
+		         -->
+		        <receiver android:name="ti.notificare.IntentReceiver" />
+
+				<receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
+		            <intent-filter>
+		                <action android:name="android.intent.action.BOOT_COMPLETED" />
+		                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+		                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+		            </intent-filter>
+		        </receiver>
+		
+		        <service
+		            android:name="org.altbeacon.beacon.service.BeaconService"
+		            android:enabled="true"
+		            android:exported="false"
+		            android:isolatedProcess="false"
+		            android:label="beacon" />
+		        <service
+		            android:name="org.altbeacon.beacon.BeaconIntentProcessor"
+		            android:enabled="true"
+		            android:exported="false" />
+    
+            
+				<!-- Google Play Services version -->
+		        <meta-data
+		            android:name="com.google.android.gms.version"
+		            android:value="@integer/google_play_services_version" />
+		            		
+		    </application>
+		
+		</manifest>
+	</android>
+	<mobileweb>
+	</mobileweb>
+</ti:module>

@@ -1,0 +1,90 @@
+<h1>Notificare Module</h1>
+<h2>Description</h2>
+<p>Titanium module for Notificare Mobile Marketing Platform. Before you start make sure you grab the notificareconfig.properties from https://github.com/Notificare/notificare-push-lib-android/blob/master/Samples/PushMe/assets/notificareconfig.properties.template and place it in your app's platform/android/bin/assets folder. This is the configuration file where you should make changes to match your app's settings.</p>
+<h2>Accessing the Notificare Module</h2>
+<p>To access this module from JavaScript, you would do the following:</p>
+<p><code>javascript
+    var Notificare = require("ti.notificare");</code></p>
+<p>The Notificare variable is a reference to the Module object.    </p>
+<p>Then, you need to hook up your view's lifecycle events to the module:</p>
+<p>```javascript
+    var win = Titanium.UI.createWindow({<br />
+        title:'Window',
+        backgroundColor:'#fff'
+    });</p>
+<pre><code>if (Ti.Platform.name == "android") {
+    win.notificareProxy = notificare.createActivityWorker({lifecycleContainer: win});
+}
+win.open();
+</code></pre>
+<p>```</p>
+<p>In Alloy, you should do this in your controller</p>
+<p><code>javascript
+    (function init() {
+        if (Ti.Platform.name == "android"){
+            $.index.notificareProxy = Alloy.Globals.Notificare.createActivityWorker({lifecycleContainer: $.index});
+        }
+        $.index.open();
+    })();</code></p>
+<h2>Reference</h2>
+<h3>Notificare.addEventListener</h3>
+<p>Notificare will be initialized at launch automatically. But before you can request any of the methods you must wait for the 'ready' event to be fired. </p>
+<p>Events:
+- ready (required) {String} Fired whenever the Notificare library is ready
+- registration (required) {String} Fired in response to registerForNotifications or enableNotifications. Contains the device token, use it to register to Notificare
+- registered (optional) {String} Fired when the device is registered with Notificare
+- location (optional) {String} Fired when the device's location is updated
+- notification (optional) {String} Fired when a notification is received
+- range (optional) {String} Fired when beacons are in range. This only occurs in foreground
+- errors (optional) {String} Fired whenever there's errors</p>
+<p>Parameters:</p>
+<ul>
+<li>event (required) {String} A string representing the event to listen to</li>
+<li>callback {Function} A callback ({Object})</li>
+</ul>
+<h3>Notificare.enableNotifications</h3>
+<p>Registers the device with GCM. In response to this method the event 'registration' will be fired.</p>
+<h3>Notificare.enableLocationUpdates</h3>
+<p>Start location updates for this device.</p>
+<h3>Notificare.enableBeacons</h3>
+<p>If you are using beacons please make sure you call this method after the 'ready' event is fired.</p>
+<h3>Notificare.enableBilling</h3>
+<p>If you are going to sell in-app products in Google Play, please invoke this method after the 'ready' event is fired.</p>
+<h3>Notificare.userID</h3>
+<p>Set this value to register the device with a userID. It should be set before calling Notificare.registerDevice().</p>
+<h3>Notificare.userName</h3>
+<p>Set this value to register the device with a userName. To use this, userID must be also set. It should be set before calling Notificare.registerDevice().</p>
+<h3>Notificare.registerDevice</h3>
+<p>Registers the device with Notificare. It should be invoked after the 'ready' event.</p>
+<p>Parameters:</p>
+<ul>
+<li>token (required) {String}</li>
+</ul>
+<h3>Notificare.addTags</h3>
+<p>Adds one or more tags to the device. This should only be called after the event 'registered' has been fired.</p>
+<p>Parameters:</p>
+<ul>
+<li>tags [{String}]</li>
+</ul>
+<h3>Notificare.removeTag</h3>
+<p>Removes a tag from the device.  This should only be called after the event 'registered' has been fired.</p>
+<p>Parameters:</p>
+<ul>
+<li>tag {String}</li>
+</ul>
+<h3>Notificare.buyProduct</h3>
+<p>Starts a transaction with Google Play. This should only be called after the event 'store' has been fired.</p>
+<p>Parameters:</p>
+<ul>
+<li>identifier {String} Use the product identifier to start a transaction</li>
+</ul>
+<h2>Usage</h2>
+<p>See sample app in example/app.js. For documentation please refer to: https://notificare.atlassian.net/wiki/display/notificare/Getting+started+with+Titanium</p>
+<h2>Authors</h2>
+<ul>
+<li>Joel Oliveira <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#106;&#111;&#101;&#108;&#64;&#110;&#111;&#116;&#105;&#102;&#105;&#99;&#97;&#46;&#114;&#101;">&#106;&#111;&#101;&#108;&#64;&#110;&#111;&#116;&#105;&#102;&#105;&#99;&#97;&#46;&#114;&#101;</a></li>
+<li>Joris Verbogt <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#106;&#111;&#114;&#105;&#115;&#64;&#110;&#111;&#116;&#105;&#102;&#105;&#99;&#97;&#46;&#114;&#101;">&#106;&#111;&#114;&#105;&#115;&#64;&#110;&#111;&#116;&#105;&#102;&#105;&#99;&#97;&#46;&#114;&#101;</a></li>
+</ul>
+<p>Copyright (c) 2015 Notificare B.V.</p>
+<h2>License</h2>
+<p>Simplified BSD</p>

@@ -1,0 +1,15 @@
+version: 1.2.3
+apiversion: 2
+description: Notificare Mobile Marketing Platform
+author: Notificare
+license: Simplified BSD
+copyright: (c) 2015 by Notificare
+
+appname: notificare-titanium-ios
+publisher: Notificare Mobile Marketing Platform
+url: https://notifica.re
+image: appicon.png
+appid: ti.notificare
+desc: Rich and interactive push notifications for iOS. Enhance your apps with location based messages and iBeacon technology that really works.
+type: module
+guid: 4c9abe11-2f16-4e7e-aea3-21757697f361

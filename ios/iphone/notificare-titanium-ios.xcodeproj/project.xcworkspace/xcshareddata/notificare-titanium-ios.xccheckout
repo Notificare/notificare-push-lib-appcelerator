@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>A12A5553-71AE-4505-B6A4-331CA4EED7C3</string>
+	<key>IDESourceControlProjectName</key>
+	<string>notificare-titanium-ios</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>2A3E19CE438EE1B27C5682A1AB5C78803DBDE600</key>
+		<string>https://github.com/Notificare/notificare-titanium-ios.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>iphone/notificare-titanium-ios.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>2A3E19CE438EE1B27C5682A1AB5C78803DBDE600</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/Notificare/notificare-titanium-ios.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>2A3E19CE438EE1B27C5682A1AB5C78803DBDE600</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>2A3E19CE438EE1B27C5682A1AB5C78803DBDE600</string>
+			<key>IDESourceControlWCCName</key>
+			<string>notificare-titanium-ios</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.2.3
+apiversion: 2
+architectures: armv7 arm64 i386 x86_64
+description: notificare-titanium-ios
+author: Notificare
+license: BSD
+copyright: Copyright (c) 2015 by Notificare
+
+# these should not be edited
+name: notificare-titanium-ios
+moduleid: ti.notificare
+guid: d68e92a8-c6e7-4a31-a140-2d00ab8e0dab
+platform: iphone
+minsdk: 3.5.1.GA

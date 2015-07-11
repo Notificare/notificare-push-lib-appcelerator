@@ -1,0 +1,4 @@
+"/Users/joris/Developer/Projects/notificare-titanium-android/android/build/generated/java/ti/notificare/NotificareTitaniumAndroidBootstrap.java"
+"/Users/joris/Developer/Projects/notificare-titanium-android/android/src/ti/notificare/ActivityWorkerProxy.java"
+"/Users/joris/Developer/Projects/notificare-titanium-android/android/src/ti/notificare/IntentReceiver.java"
+"/Users/joris/Developer/Projects/notificare-titanium-android/android/src/ti/notificare/NotificareTitaniumAndroidModule.java"
