@@ -29,6 +29,7 @@ public:
 
 private:
 	// Methods -----------------------------------------------------------
+	static v8::Handle<v8::Value> getUserID(const v8::Arguments&);
 	static v8::Handle<v8::Value> logCustomEvent(const v8::Arguments&);
 	static v8::Handle<v8::Value> getInboxItems(const v8::Arguments&);
 	static v8::Handle<v8::Value> removeTag(const v8::Arguments&);
@@ -38,15 +39,22 @@ private:
 	static v8::Handle<v8::Value> getTags(const v8::Arguments&);
 	static v8::Handle<v8::Value> enableBeacons(const v8::Arguments&);
 	static v8::Handle<v8::Value> openNotification(const v8::Arguments&);
+	static v8::Handle<v8::Value> getDeviceID(const v8::Arguments&);
+	static v8::Handle<v8::Value> setUserID(const v8::Arguments&);
 	static v8::Handle<v8::Value> enableBilling(const v8::Arguments&);
-	static v8::Handle<v8::Value> enableLocationUpdates(const v8::Arguments&);
 	static v8::Handle<v8::Value> removeInboxItem(const v8::Arguments&);
+	static v8::Handle<v8::Value> enableLocationUpdates(const v8::Arguments&);
+	static v8::Handle<v8::Value> setUserName(const v8::Arguments&);
 	static v8::Handle<v8::Value> enableNotifications(const v8::Arguments&);
 	static v8::Handle<v8::Value> addTags(const v8::Arguments&);
+	static v8::Handle<v8::Value> getUserName(const v8::Arguments&);
 
 	// Dynamic property accessors ----------------------------------------
 	static v8::Handle<v8::Value> getter_userName(v8::Local<v8::String> property, const v8::AccessorInfo& info);
+	static void setter_userName(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo& info);
 	static v8::Handle<v8::Value> getter_userID(v8::Local<v8::String> property, const v8::AccessorInfo& info);
+	static void setter_userID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo& info);
+	static v8::Handle<v8::Value> getter_deviceID(v8::Local<v8::String> property, const v8::AccessorInfo& info);
 
 };
 

@@ -89,6 +89,7 @@ Handle<FunctionTemplate> NotificareTitaniumAndroidModule::getProxyTemplate()
 	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 
 	// Method bindings --------------------------------------------------------
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "getUserID", NotificareTitaniumAndroidModule::getUserID);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "logCustomEvent", NotificareTitaniumAndroidModule::logCustomEvent);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "getInboxItems", NotificareTitaniumAndroidModule::getInboxItems);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "removeTag", NotificareTitaniumAndroidModule::removeTag);
@@ -98,11 +99,15 @@ Handle<FunctionTemplate> NotificareTitaniumAndroidModule::getProxyTemplate()
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "getTags", NotificareTitaniumAndroidModule::getTags);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "enableBeacons", NotificareTitaniumAndroidModule::enableBeacons);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "openNotification", NotificareTitaniumAndroidModule::openNotification);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "getDeviceID", NotificareTitaniumAndroidModule::getDeviceID);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "setUserID", NotificareTitaniumAndroidModule::setUserID);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "enableBilling", NotificareTitaniumAndroidModule::enableBilling);
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "enableLocationUpdates", NotificareTitaniumAndroidModule::enableLocationUpdates);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "removeInboxItem", NotificareTitaniumAndroidModule::removeInboxItem);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "enableLocationUpdates", NotificareTitaniumAndroidModule::enableLocationUpdates);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "setUserName", NotificareTitaniumAndroidModule::setUserName);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "enableNotifications", NotificareTitaniumAndroidModule::enableNotifications);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "addTags", NotificareTitaniumAndroidModule::addTags);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "getUserName", NotificareTitaniumAndroidModule::getUserName);
 
 	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
 	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
@@ -116,10 +121,14 @@ Handle<FunctionTemplate> NotificareTitaniumAndroidModule::getProxyTemplate()
 	// Dynamic properties -----------------------------------------------------
 	instanceTemplate->SetAccessor(String::NewSymbol("userName"),
 			NotificareTitaniumAndroidModule::getter_userName
-			, titanium::Proxy::onPropertyChanged
-		, Handle<Value>(), DEFAULT);
+			, NotificareTitaniumAndroidModule::setter_userName
+, Handle<Value>(), DEFAULT);
 	instanceTemplate->SetAccessor(String::NewSymbol("userID"),
 			NotificareTitaniumAndroidModule::getter_userID
+			, NotificareTitaniumAndroidModule::setter_userID
+, Handle<Value>(), DEFAULT);
+	instanceTemplate->SetAccessor(String::NewSymbol("deviceID"),
+			NotificareTitaniumAndroidModule::getter_deviceID
 			, titanium::Proxy::onPropertyChanged
 		, Handle<Value>(), DEFAULT);
 
@@ -129,6 +138,58 @@ Handle<FunctionTemplate> NotificareTitaniumAndroidModule::getProxyTemplate()
 }
 
 // Methods --------------------------------------------------------------------
+Handle<Value> NotificareTitaniumAndroidModule::getUserID(const Arguments& args)
+{
+	LOGD(TAG, "getUserID()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getUserID", "()Ljava/lang/String;");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'getUserID' with signature '()Ljava/lang/String;'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	jstring jResult = (jstring)env->CallObjectMethodA(javaProxy, methodID, jArguments);
+
+
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = titanium::TypeConverter::javaStringToJsString(env, jResult);
+
+	env->DeleteLocalRef(jResult);
+
+
+	return v8Result;
+
+}
 Handle<Value> NotificareTitaniumAndroidModule::logCustomEvent(const Arguments& args)
 {
 	LOGD(TAG, "logCustomEvent()");
@@ -659,6 +720,123 @@ Handle<Value> NotificareTitaniumAndroidModule::openNotification(const Arguments&
 	return v8::Undefined();
 
 }
+Handle<Value> NotificareTitaniumAndroidModule::getDeviceID(const Arguments& args)
+{
+	LOGD(TAG, "getDeviceID()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getDeviceID", "()Ljava/lang/String;");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'getDeviceID' with signature '()Ljava/lang/String;'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	jstring jResult = (jstring)env->CallObjectMethodA(javaProxy, methodID, jArguments);
+
+
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = titanium::TypeConverter::javaStringToJsString(env, jResult);
+
+	env->DeleteLocalRef(jResult);
+
+
+	return v8Result;
+
+}
+Handle<Value> NotificareTitaniumAndroidModule::setUserID(const Arguments& args)
+{
+	LOGD(TAG, "setUserID()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "setUserID", "(Ljava/lang/String;)V");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'setUserID' with signature '(Ljava/lang/String;)V'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	if (args.Length() < 1) {
+		char errorStringBuffer[100];
+		sprintf(errorStringBuffer, "setUserID: Invalid number of arguments. Expected 1 but got %d", args.Length());
+		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
+	}
+
+	jvalue jArguments[1];
+
+
+
+
+	
+	
+	if (!args[0]->IsNull()) {
+		Local<Value> arg_0 = args[0];
+		jArguments[0].l =
+			titanium::TypeConverter::jsValueToJavaString(env, arg_0);
+	} else {
+		jArguments[0].l = NULL;
+	}
+
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethodA(javaProxy, methodID, jArguments);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+				env->DeleteLocalRef(jArguments[0].l);
+
+
+	if (env->ExceptionCheck()) {
+		titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+	}
+
+
+
+
+	return v8::Undefined();
+
+}
 Handle<Value> NotificareTitaniumAndroidModule::enableBilling(const Arguments& args)
 {
 	LOGD(TAG, "enableBilling()");
@@ -673,49 +851,6 @@ Handle<Value> NotificareTitaniumAndroidModule::enableBilling(const Arguments& ar
 		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "enableBilling", "()V");
 		if (!methodID) {
 			const char *error = "Couldn't find proxy method 'enableBilling' with signature '()V'";
-			LOGE(TAG, error);
-				return titanium::JSException::Error(error);
-		}
-	}
-
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
-
-	jvalue* jArguments = 0;
-
-	jobject javaProxy = proxy->getJavaObject();
-	env->CallVoidMethodA(javaProxy, methodID, jArguments);
-
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
-
-
-
-	if (env->ExceptionCheck()) {
-		titanium::JSException::fromJavaException();
-		env->ExceptionClear();
-	}
-
-
-
-
-	return v8::Undefined();
-
-}
-Handle<Value> NotificareTitaniumAndroidModule::enableLocationUpdates(const Arguments& args)
-{
-	LOGD(TAG, "enableLocationUpdates()");
-	HandleScope scope;
-
-	JNIEnv *env = titanium::JNIScope::getEnv();
-	if (!env) {
-		return titanium::JSException::GetJNIEnvironmentError();
-	}
-	static jmethodID methodID = NULL;
-	if (!methodID) {
-		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "enableLocationUpdates", "()V");
-		if (!methodID) {
-			const char *error = "Couldn't find proxy method 'enableLocationUpdates' with signature '()V'";
 			LOGE(TAG, error);
 				return titanium::JSException::Error(error);
 		}
@@ -799,6 +934,114 @@ Handle<Value> NotificareTitaniumAndroidModule::removeInboxItem(const Arguments& 
 			if (isNew_0) {
 				env->DeleteLocalRef(jArguments[0].l);
 			}
+
+
+	if (env->ExceptionCheck()) {
+		titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+	}
+
+
+
+
+	return v8::Undefined();
+
+}
+Handle<Value> NotificareTitaniumAndroidModule::enableLocationUpdates(const Arguments& args)
+{
+	LOGD(TAG, "enableLocationUpdates()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "enableLocationUpdates", "()V");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'enableLocationUpdates' with signature '()V'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethodA(javaProxy, methodID, jArguments);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+	if (env->ExceptionCheck()) {
+		titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+	}
+
+
+
+
+	return v8::Undefined();
+
+}
+Handle<Value> NotificareTitaniumAndroidModule::setUserName(const Arguments& args)
+{
+	LOGD(TAG, "setUserName()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "setUserName", "(Ljava/lang/String;)V");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'setUserName' with signature '(Ljava/lang/String;)V'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	if (args.Length() < 1) {
+		char errorStringBuffer[100];
+		sprintf(errorStringBuffer, "setUserName: Invalid number of arguments. Expected 1 but got %d", args.Length());
+		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
+	}
+
+	jvalue jArguments[1];
+
+
+
+
+	
+	
+	if (!args[0]->IsNull()) {
+		Local<Value> arg_0 = args[0];
+		jArguments[0].l =
+			titanium::TypeConverter::jsValueToJavaString(env, arg_0);
+	} else {
+		jArguments[0].l = NULL;
+	}
+
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethodA(javaProxy, methodID, jArguments);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+				env->DeleteLocalRef(jArguments[0].l);
 
 
 	if (env->ExceptionCheck()) {
@@ -925,6 +1168,58 @@ Handle<Value> NotificareTitaniumAndroidModule::addTags(const Arguments& args)
 	return v8::Undefined();
 
 }
+Handle<Value> NotificareTitaniumAndroidModule::getUserName(const Arguments& args)
+{
+	LOGD(TAG, "getUserName()");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getUserName", "()Ljava/lang/String;");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'getUserName' with signature '()Ljava/lang/String;'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	jstring jResult = (jstring)env->CallObjectMethodA(javaProxy, methodID, jArguments);
+
+
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = titanium::TypeConverter::javaStringToJsString(env, jResult);
+
+	env->DeleteLocalRef(jResult);
+
+
+	return v8Result;
+
+}
 
 // Dynamic property accessors -------------------------------------------------
 
@@ -939,9 +1234,9 @@ Handle<Value> NotificareTitaniumAndroidModule::getter_userName(Local<String> pro
 	}
 	static jmethodID methodID = NULL;
 	if (!methodID) {
-		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "userName", "()Ljava/lang/String;");
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getUserName", "()Ljava/lang/String;");
 		if (!methodID) {
-			const char *error = "Couldn't find proxy method 'userName' with signature '()Ljava/lang/String;'";
+			const char *error = "Couldn't find proxy method 'getUserName' with signature '()Ljava/lang/String;'";
 			LOGE(TAG, error);
 				return titanium::JSException::Error(error);
 		}
@@ -985,6 +1280,64 @@ Handle<Value> NotificareTitaniumAndroidModule::getter_userName(Local<String> pro
 
 }
 
+void NotificareTitaniumAndroidModule::setter_userName(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	LOGD(TAG, "set userName");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment, userName wasn't set");
+		return;
+	}
+
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "setUserName", "(Ljava/lang/String;)V");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'setUserName' with signature '(Ljava/lang/String;)V'";
+			LOGE(TAG, error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
+	if (!proxy) {
+		return;
+	}
+
+	jvalue jArguments[1];
+
+	
+	
+	if (!value->IsNull()) {
+		Local<Value> arg_0 = value;
+		jArguments[0].l =
+			titanium::TypeConverter::jsValueToJavaString(env, arg_0);
+	} else {
+		jArguments[0].l = NULL;
+	}
+
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethodA(javaProxy, methodID, jArguments);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+				env->DeleteLocalRef(jArguments[0].l);
+
+
+	if (env->ExceptionCheck()) {
+		titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+	}
+
+
+
+
+}
 
 
 Handle<Value> NotificareTitaniumAndroidModule::getter_userID(Local<String> property, const AccessorInfo& info)
@@ -998,9 +1351,126 @@ Handle<Value> NotificareTitaniumAndroidModule::getter_userID(Local<String> prope
 	}
 	static jmethodID methodID = NULL;
 	if (!methodID) {
-		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "userID", "()Ljava/lang/String;");
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getUserID", "()Ljava/lang/String;");
 		if (!methodID) {
-			const char *error = "Couldn't find proxy method 'userID' with signature '()Ljava/lang/String;'";
+			const char *error = "Couldn't find proxy method 'getUserID' with signature '()Ljava/lang/String;'";
+			LOGE(TAG, error);
+				return titanium::JSException::Error(error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
+
+	if (!proxy) {
+		return Undefined();
+	}
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	jstring jResult = (jstring)env->CallObjectMethodA(javaProxy, methodID, jArguments);
+
+
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = titanium::TypeConverter::javaStringToJsString(env, jResult);
+
+	env->DeleteLocalRef(jResult);
+
+
+	return v8Result;
+
+}
+
+void NotificareTitaniumAndroidModule::setter_userID(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	LOGD(TAG, "set userID");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment, userID wasn't set");
+		return;
+	}
+
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "setUserID", "(Ljava/lang/String;)V");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'setUserID' with signature '(Ljava/lang/String;)V'";
+			LOGE(TAG, error);
+		}
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
+	if (!proxy) {
+		return;
+	}
+
+	jvalue jArguments[1];
+
+	
+	
+	if (!value->IsNull()) {
+		Local<Value> arg_0 = value;
+		jArguments[0].l =
+			titanium::TypeConverter::jsValueToJavaString(env, arg_0);
+	} else {
+		jArguments[0].l = NULL;
+	}
+
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethodA(javaProxy, methodID, jArguments);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+
+
+				env->DeleteLocalRef(jArguments[0].l);
+
+
+	if (env->ExceptionCheck()) {
+		titanium::JSException::fromJavaException();
+		env->ExceptionClear();
+	}
+
+
+
+
+}
+
+
+Handle<Value> NotificareTitaniumAndroidModule::getter_deviceID(Local<String> property, const AccessorInfo& info)
+{
+	LOGD(TAG, "get deviceID");
+	HandleScope scope;
+
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		return titanium::JSException::GetJNIEnvironmentError();
+	}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(NotificareTitaniumAndroidModule::javaClass, "getDeviceID", "()Ljava/lang/String;");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method 'getDeviceID' with signature '()Ljava/lang/String;'";
 			LOGE(TAG, error);
 				return titanium::JSException::Error(error);
 		}

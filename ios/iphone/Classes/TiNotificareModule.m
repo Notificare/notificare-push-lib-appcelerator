@@ -1134,5 +1134,17 @@ enum {
     
 }
 
+-(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelectorWithURL:(NSURL *)url{
+    
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:[url scheme] forKey:@"scheme"];
+    [trans setValue:[url host] forKey:@"host"];
+    [trans setValue:[url path] forKey:@"path"];
+    [trans setValue:[url query] forKey:@"query"];
+    [trans setValue:[url port] forKey:@"port"];
+    [self fireEvent:@"action" withObject:trans];
+    
+}
+
 
 @end
