@@ -242,7 +242,7 @@
 		0867D691FE84028FC02AAC07 /* notificare-titanium-ios */ = {
 			isa = PBXGroup;
 			children = (
-				40B3CD291B8C7DEE00DAF500 /* notificare-push-lib-1.5.9 */,
+				40B3CD291B8C7DEE00DAF500 /* notificare-push-lib-1.6.0 */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -279,14 +279,14 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
-		40B3CD291B8C7DEE00DAF500 /* notificare-push-lib-1.5.9 */ = {
+		40B3CD291B8C7DEE00DAF500 /* notificare-push-lib-1.6.0 */ = {
 			isa = PBXGroup;
 			children = (
 				40B3CD2A1B8C7DEE00DAF500 /* .gitignore */,
 				40B3CD2B1B8C7DEE00DAF500 /* libNotificarePushLib.a */,
 				40B3CD2C1B8C7DEE00DAF500 /* Notificare */,
 			);
-			path = "notificare-push-lib-1.5.9";
+			path = "notificare-push-lib-1.6.0";
 			sourceTree = "<group>";
 		};
 		40B3CD2C1B8C7DEE00DAF500 /* Notificare */ = {
@@ -823,7 +823,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/notificare-push-lib-1.5.9";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/notificare-push-lib-1.6.0";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
@@ -861,7 +861,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/notificare-push-lib-1.5.9";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/notificare-push-lib-1.6.0";
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = TiNotificare;
