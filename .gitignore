@@ -19,7 +19,11 @@ local.properties
 # Eclipse project files
 .classpath
 .settings
+xcuserdata/
+.DS_Store
 /target
-android/dist/
-/build
+android/android/dist/
+android/android/build/
+android/android/libs/
+ios/iphone/build/
 /.gradle
