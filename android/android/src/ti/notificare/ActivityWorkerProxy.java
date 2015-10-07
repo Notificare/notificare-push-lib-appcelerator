@@ -44,7 +44,7 @@ public class ActivityWorkerProxy extends KrollProxy implements OnActivityResultE
 		super.handleCreationDict(options);
 		Log.d(TAG, "Notificare proxy created with " + options.toString());
 	}
-
+	
 	@Override
 	public void onCreate(Activity activity, Bundle savedInstance) {
 		Log.d(TAG, "Notificare proxy onCreate with intent " + activity.getIntent().getAction());

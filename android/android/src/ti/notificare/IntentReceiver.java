@@ -78,11 +78,11 @@ public class IntentReceiver extends DefaultIntentReceiver {
 			    event.put("alert", alert);
 			    event.put("extras", notification.getExtra());
 			    
-//			    NotificareTitaniumAndroidModule module = NotificareTitaniumAndroidModule.getModule();
-//				if (module != null) {
-//					Log.i(TAG, "Module is running, firing notification open event");
-//					module.fireEvent("notification", event);
-//				} else {
+			    NotificareTitaniumAndroidModule module = NotificareTitaniumAndroidModule.getModule();
+				if (module != null) {
+					Log.i(TAG, "Module is running, firing notification open event");
+					module.fireEvent("notification", event);
+				} else {
 					// Start the main activity
 					Log.i(TAG, "Module not running, launch app with notification open intent");
 					PackageManager pm = Notificare.shared().getApplicationContext().getPackageManager();
@@ -95,7 +95,7 @@ public class IntentReceiver extends DefaultIntentReceiver {
 						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						Notificare.shared().getApplicationContext().startActivity(launchIntent);
 					}
-//				}
+				}
 			} catch (JSONException e) {
 				Log.e(TAG, "JSON parse error");
 			}
@@ -125,13 +125,13 @@ public class IntentReceiver extends DefaultIntentReceiver {
 
 	@Override
 	public void onActionReceived(Uri target) {
-//		NotificareTitaniumAndroidModule module = NotificareTitaniumAndroidModule.getModule();
-//		if (module != null) {
-//			Log.i(TAG, "Module is running, firing custom action event");
-//			KrollDict event = new KrollDict();
-//			event.put("target", target.toString());
-//			module.fireEvent("action", event);
-//		} else {
+		NotificareTitaniumAndroidModule module = NotificareTitaniumAndroidModule.getModule();
+		if (module != null) {
+			Log.i(TAG, "Module is running, firing custom action event");
+			KrollDict event = new KrollDict();
+			event.put("target", target.toString());
+			module.fireEvent("action", event);
+		} else {
 			// Start the main activity
 			Log.i(TAG, "Module not running, launch app with custom action intent");
 			PackageManager pm = Notificare.shared().getApplicationContext().getPackageManager();

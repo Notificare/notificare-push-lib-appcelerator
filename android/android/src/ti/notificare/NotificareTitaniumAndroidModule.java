@@ -140,6 +140,7 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	public static void onAppCreate(TiApplication app) {
 		Log.d(TAG, "Notificare module app create");
 		Notificare.shared().launch(app);
+		Notificare.shared().setDebugLogging(true);
 		Notificare.shared().setIntentReceiver(IntentReceiver.class);
 	}
 	
