@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 1.5.4
+- backport of 1.6.2 to 1.5 branch
+
 ## 1.5.0    07-10-2015 Joris Verbogt
 - intermediary release until Titanium is ready for SDK level 23
 - update to Notificare SDK 1.5.7, which is 1.6.0 without Android M permissions

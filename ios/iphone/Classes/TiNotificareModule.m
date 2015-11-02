@@ -995,6 +995,13 @@ enum {
     
 }
 
+-(void)clearInbox:(id)arg{
+    
+    ENSURE_UI_THREAD_0_ARGS;
+
+    [[NotificarePushLib shared] clearInbox];
+    
+}
 
 -(void)isLoggedIn:(id)arg{
     

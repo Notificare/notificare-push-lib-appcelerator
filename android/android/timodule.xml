@@ -13,8 +13,8 @@
 		    <uses-permission android:name="android.permission.WAKE_LOCK" />
 		    <uses-permission android:name="android.permission.INTERNET" />
 		    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-		    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-		    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+		    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="22" />
+		    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22" />
 		    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 		    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 		
@@ -68,16 +68,16 @@
                             <intent-filter>
                                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                             </intent-filter>
-			</service>
+				</service>
 		
-                        <service android:name="re.notifica.push.gcm.InstanceIDService"
-                            android:exported="false">
-                            <intent-filter>
-                                <action android:name="com.google.android.gms.iid.InstanceID"/>
-                            </intent-filter>
-                        </service>
+                <service android:name="re.notifica.push.gcm.InstanceIDService"
+                    android:exported="false">
+                    <intent-filter>
+                        <action android:name="com.google.android.gms.iid.InstanceID"/>
+                    </intent-filter>
+                </service>
 
-                        <service android:name="re.notifica.push.gcm.RegistrationService" android:exported="false" />
+                <service android:name="re.notifica.push.gcm.RegistrationService" android:exported="false" />
 
 		        <!--
 		            Receiver to dispatch GCM registration, push notifications and custom push actions.

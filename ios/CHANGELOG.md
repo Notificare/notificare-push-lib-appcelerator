@@ -1,4 +1,7 @@
 # CHANGELOG
+
+## 1.6.1
+
 ## 1.2.3   27-04-2015 Joel Oliveira
 - Added listener for actions of type “Open Custom Method”
 - Added logCustomEvent
