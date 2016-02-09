@@ -1,8 +1,8 @@
 /**
  * notificare-titanium-ios
  *
- * Created by Your Name
- * Copyright (c) 2015 Your Company. All rights reserved.
+ * Created by Joel Oliveira
+ * Copyright (c) 2015 Notificare. All rights reserved.
  */
 
 #import "TiNotificareModule.h"
@@ -963,43 +963,105 @@ enum {
     ENSURE_UI_THREAD_1_ARG(arg);
     
     id _out = nil;
-    ENSURE_ARG_AT_INDEX(_out, arg, 0, KrollCallback);
+    ENSURE_ARG_AT_INDEX(_out, arg, 3, KrollCallback);
+    NSString * dateString = (NSString*)arg[0];
+    NSString * skip = (NSString*)arg[1];
+    NSString * limit = (NSString*)arg[2];
+    KrollCallback *callback = (KrollCallback*)arg[3];
     
-    KrollCallback *callback = (KrollCallback*)arg[0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss Z"];
+    NSDate *sinceDate = [dateFormatter dateFromString:dateString];
+
     
-    NSArray * trans = [[NotificarePushLib shared] myInbox];
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
     
-    [callback call:@[trans] thisObject:self];
+    [[NotificarePushLib shared] fetchInbox:sinceDate skip:[NSNumber numberWithInt:[skip intValue]] limit:[NSNumber numberWithInt:[limit intValue]] completionHandler:^(NSDictionary *info) {
+        
+        NSMutableArray * inbox = [NSMutableArray array];
+        
+        for (NotificareDeviceInbox * inb in [info objectForKey:@"inbox"]) {
+            NSMutableDictionary * i = [NSMutableDictionary dictionary];
+            [i setObject:[inb inboxId] forKey:@"id"];
+            [i setObject:[inb applicationId] forKey:@"application"];
+            [i setObject:[inb deviceID] forKey:@"deviceID"];
+            [i setObject:[inb userID] forKey:@"userID"];
+            [i setObject:[inb message] forKey:@"message"];
+            [i setObject:[inb data] forKey:@"data"];
+            [i setObject:[inb notification] forKey:@"notification"];
+            [i setObject:[inb time] forKey:@"time"];
+            [i setObject:[NSNumber numberWithBool:[inb opened]] forKey:@"opened"];
+            [inbox addObject:i];
+        }
+     
+        [trans setObject:inbox forKey:@"inbox"];
+        
+        [callback call:@[trans] thisObject:self];
+     
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
+    
     
 }
 
--(void)saveToInbox:(id)arg{
-    
-    ENSURE_UI_THREAD_1_ARG(arg);
-    ENSURE_SINGLE_ARG(arg, NSDictionary);
-    
-    [[NotificarePushLib shared] saveToInbox:arg forApplication:[UIApplication sharedApplication] completionHandler:^(NSDictionary *info) {
-        //
-    } errorHandler:^(NSError *error) {
-        //
-    }];
-    
-}
 
 -(void)removeFromInbox:(id)arg{
     
     ENSURE_UI_THREAD_1_ARG(arg);
-    ENSURE_SINGLE_ARG(arg, NSDictionary);
     
-    [[NotificarePushLib shared] removeFromInbox:arg];
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSString * inboxId = (NSString*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
+    
+    NotificareDeviceInbox * item = [NotificareDeviceInbox new];
+    [item setInboxId:inboxId];
+    
+    [[NotificarePushLib shared] removeFromInbox:item completionHandler:^(NSDictionary *info) {
+        
+        [callback call:@[info] thisObject:self];
+        
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
     
 }
 
 -(void)clearInbox:(id)arg{
     
-    ENSURE_UI_THREAD_0_ARGS;
+    ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 0, KrollCallback);
+    KrollCallback *callback = (KrollCallback*)arg[0];
 
-    [[NotificarePushLib shared] clearInbox];
+    [[NotificarePushLib shared] clearInbox:^(NSDictionary *info) {
+        [callback call:@[info] thisObject:self];
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
     
 }
 

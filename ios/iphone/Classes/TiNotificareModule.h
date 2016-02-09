@@ -1,8 +1,8 @@
 /**
  * notificare-titanium-ios
  *
- * Created by Your Name
- * Copyright (c) 2015 Your Company. All rights reserved.
+ * Created by Joel Oliveira
+ * Copyright (c) 2015 Notificare. All rights reserved.
  */
 
 #import "TiModule.h"
