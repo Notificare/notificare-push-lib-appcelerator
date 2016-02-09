@@ -53,26 +53,6 @@ notificare.addEventListener('ready',function(e) {
 		}
 	}
 	
-
-	//If using saveToInbox() on receivePush() with background remote notifications
-	//you can then access the Inbox 
-	notificare.fetchInbox(function(e){
-		if (e && e.length > 0) {
-			
-			//If you want to use the default inbox
-			//notificare.openInbox();
-			
-			//If you want to build with your own UI
-			//You can loop over the items
-			e.forEach(function(msg) {
-				Ti.API.info("Message: " + msg.aps.alert);
-				//You can also remove messages from the inobox
-				//notificare.removeFromInbox(msg);
-			});
-		} else {
-			Ti.API.info("Empty Inbox");
-		}
-	});
 	notificare.logCustomEvent('someEvent', null, function(e) {
 		if (e.success) {
 			Ti.API.info("Message: " + e.success.message);
@@ -89,10 +69,29 @@ notificare.addEventListener('registered', function(e) {
 	 //notificare.addTags(tags);
 	 //notificare.clearTags();
 	 //notificare.openUserPreferences(e);
-	 //notificare.openInbox(e);
 	 //notificare.openBeacons(e);
 	 //notificare.removeTag('one');
+	 
+	 //If Inbox is active in Notificare Dashboard
+	notificare.fetchInbox(function(e){
 
+		if (e && e.inbox && e.inbox.length > 0) {
+			
+			//If you want to build with your own UI
+			//You can loop over the items
+			e.inbox.forEach(function(msg) {
+				Ti.API.info("Message: " + msg.message + msg.notification);
+				//Open an inbox item
+				//notificare.openInboxItem(msg);
+				//You can also remove messages from the inbox
+				//notificare.removeFromInbox(msg);
+			});
+		} else {
+			Ti.API.info("Empty Inbox");
+		}
+	});
+	//Delete all items in the inbox
+	//notificare.clearInbox();
 });
 
 notificare.addEventListener('action', function(e){
