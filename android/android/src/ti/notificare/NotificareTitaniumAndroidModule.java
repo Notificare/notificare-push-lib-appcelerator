@@ -17,10 +17,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,16 +34,18 @@ import re.notifica.NotificareError;
 import re.notifica.model.NotificareInboxItem;
 import re.notifica.model.NotificareNotification;
 import re.notifica.ui.NotificationActivity;
+import android.app.Activity;
 import android.content.Intent;
 
 @Kroll.module(name="NotificareTitaniumAndroid", id="ti.notificare")
 public class NotificareTitaniumAndroidModule extends KrollModule {
-
 	private static final String TAG = "NotificareTitanium";
 	
 	private static NotificareTitaniumAndroidModule module;
 	
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+
+	private static int DEFAULT_LIST_SIZE = 25;
 	
 	private Boolean ready = false;
 	
@@ -131,7 +136,7 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	public void setReady() {
 		ready = true;
 	}
-	
+
 	/*
 	 * Overrides
 	 */
@@ -160,8 +165,19 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	 * Enable location updates
 	 */
 	@Kroll.method
-	public void enableLocationUpdates() {
-		Notificare.shared().enableLocationUpdates();
+	public void enableLocationUpdates(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+    	if (Notificare.shared().hasLocationPermissionGranted()) {
+    		Notificare.shared().enableLocationUpdates();
+		} else {
+    		Log.i(TAG, "location permission not granted");
+			if (TiBaseActivity.locationCallbackContext == null) {
+				TiBaseActivity.locationCallbackContext = getKrollObject();
+			}
+			TiBaseActivity.locationPermissionCallback = permissionCallback;
+			String[] permissions = new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION};
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
+    	}
 	}
 	
 	/** 
@@ -340,6 +356,46 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 		
 		return itemList.toArray(new Object[itemList.size()]);
 	}
+	
+    /**
+     * Fetch inbox items
+     * @param args
+     * @param callbackContext
+     */
+	@Kroll.method
+	protected KrollDict fetchInbox(@Kroll.argument(optional=true, name="skip") int skip, @Kroll.argument(optional=true, name="limit") int limit) {
+        int size = Notificare.shared().getInboxManager().getItems().size();
+		if (limit <= 0) {
+		    limit = DEFAULT_LIST_SIZE;
+		}
+		if (skip < 0) {
+		    skip = 0;
+		}
+        if (skip > size) {
+            skip = size;
+        }
+        int end = limit + skip;
+        if (end > size) {
+            end = size;
+        }
+        List<NotificareInboxItem> items = new ArrayList<NotificareInboxItem>(Notificare.shared().getInboxManager().getItems()).subList(skip, end);
+		List<KrollDict> inbox = new ArrayList<KrollDict>();
+		for (NotificareInboxItem item : items) {
+			KrollDict result = new KrollDict();
+            result.put("itemId", item.getItemId());
+            result.put("notification", item.getNotification().getNotificationId());
+            result.put("message", item.getNotification().getMessage());
+            result.put("status", item.getStatus());
+            result.put("timestamp", dateFormatter.format(item.getTimestamp()));
+            inbox.add(result);
+		}
+		KrollDict results = new KrollDict();
+		results.put("inbox", inbox.toArray(new Object[inbox.size()]));
+		results.put("total", size);
+		results.put("unread", Notificare.shared().getInboxManager().getUnreadCount());
+		return results;
+	}
+
 	
 	/**
 	 * Mark an item in the inbox as read
