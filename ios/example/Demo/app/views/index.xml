@@ -1,0 +1,27 @@
+<Alloy>
+	<TabGroup backgroundColor="white" >
+	    <Tab id="tab">
+		    <Window title="Inbox" class="container" formFactor="handheld">
+		        <ListView id="list" defaultItemTemplate="templateInbox">
+		            <Templates>
+		                <ItemTemplate  id="templateInbox" name="templateInbox"  class="templateInbox">
+		                    <View id="textContainer">
+		                        <Label id="textDate" bindId="textDate" class="date"/>
+		                        <Label id="textMessage" bindId="textMessage" class="title"/>
+		                    </View>
+		                </ItemTemplate>
+		                <ItemTemplate  id="templateInboxOpened" name="templateInboxOpened"  class="templateInboxOpened">
+		                    <View id="textContainer">
+		                        <Label id="textDate" bindId="textDate" class="dateOpened"/>
+		                        <Label id="textMessage" bindId="textMessage" class="titleOpened"/>
+		                    </View>
+		                </ItemTemplate>
+		            </Templates>
+		            <ListSection id="section" >
+		                <ListItem template="templateInbox" />
+		            </ListSection>
+		        </ListView>
+		    </Window>
+	    </Tab>
+	</TabGroup>
+</Alloy>

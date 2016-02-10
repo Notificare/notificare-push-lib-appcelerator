@@ -471,14 +471,6 @@ enum {
 }
 
 
--(void)openInbox:(id)arg
-{
-    
-    ENSURE_UI_THREAD_0_ARGS;
-    
-    [[NotificarePushLib shared] openInbox];
-    
-}
 
 -(void)buyProduct:(id)arg
 {
