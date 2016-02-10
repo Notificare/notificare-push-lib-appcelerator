@@ -1014,6 +1014,35 @@ enum {
     
 }
 
+-(void)markAsRead:(id)arg{
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSDictionary * inbox = (NSDictionary*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
+    
+    NotificareDeviceInbox * item = [NotificareDeviceInbox new];
+    [item setInboxId:[inbox objectForKey:@"id"]];
+    [item setNotification:[inbox objectForKey:@"notification"]];
+    
+    [[NotificarePushLib shared] markAsRead:item completionHandler:^(NSDictionary *info) {
+        
+        [callback call:@[info] thisObject:self];
+        
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
+    
+}
 
 -(void)removeFromInbox:(id)arg{
     

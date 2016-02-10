@@ -69,6 +69,32 @@ notificare.addEventListener('registered', function(e) {
 	 //notificare.openUserPreferences(e);
 	 //notificare.openBeacons(e);
 	 //notificare.removeTag('one');
+	 
+	 /*
+		notificare.fetchInbox(function(e){
+			Ti.API.info(e.inbox);
+			
+			e.inbox.forEach(function(item){
+				//Open inbox item
+				notificare.openInboxItem(item);
+				
+				//Mark as read
+				notificare.markAsRead(item, function(response){
+					
+				});
+				
+				//Remove item
+				notificare.removeFromInbox(item, function(response){
+					
+				});
+				
+				//Remove all items
+				notificare.clearInbox(function(response){
+					
+				});
+			});
+		});
+	  */
 });
 
 notificare.addEventListener('action', function(e){
