@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.7.0
+- updated to Android SDK level 23
+- include Location Permissions, storage permissions need to be set manually in Android M until new Titanium is released
+- updated to Google Play Services 8.4
+- updated to Notificare Android SDK 1.7.1
+- included inbox methods
+
 ## 1.5.4
 - backport of 1.6.2 to 1.5 branch
 

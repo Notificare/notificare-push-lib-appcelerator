@@ -54,7 +54,7 @@ public class ActivityWorkerProxy extends KrollProxy implements OnActivityResultE
 		}
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			NotificareNotification notification = parseNotificationIntent(root.getIntent());
+			NotificareNotification notification = parseNotificationIntent(root.getActivityProxy().getIntent().getIntent());
 			if (notification != null) {
 				Log.i(TAG, "Started with notification open intent");
 				try {
@@ -67,7 +67,7 @@ public class ActivityWorkerProxy extends KrollProxy implements OnActivityResultE
 					Log.e(TAG, "JSON parse error");
 				}
 			} else {
-				Uri target = parseCustomActionIntent(root.getIntent());
+				Uri target = parseCustomActionIntent(root.getActivityProxy().getIntent().getIntent());
 				if (target != null) {
 					Log.i(TAG, "Started with custom action intent");
 					KrollDict event = new KrollDict();

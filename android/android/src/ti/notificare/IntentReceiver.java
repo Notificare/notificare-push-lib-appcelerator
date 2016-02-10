@@ -40,14 +40,7 @@ public class IntentReceiver extends DefaultIntentReceiver {
 	private static final String TAG = IntentReceiver.class.getSimpleName();
 	
 	@Override
-	public void onNotificationReceived(String alert, String notificationId, Bundle extras) {
-		// Execute default behavior, i.e., put notification in drawer
-		Log.d(TAG, "Notification received with extra " + extras.getString("mykey"));
-		super.onNotificationReceived(alert, notificationId, extras);
-	}
-
-	@Override
-	public void onNotificationOpened(String alert, final String notificationId, Bundle extras) {
+	public void onNotificationOpened(String alert, final String notificationId, final String inboxItemId, Bundle extras) {
 		NotificareAction action = extras.getParcelable(Notificare.INTENT_EXTRA_ACTION);
 		NotificareNotification notification = extras.getParcelable(Notificare.INTENT_EXTRA_NOTIFICATION);
 		if (action != null && notification != null && action.getType().equals(NotificareAction.ACTION_TYPE_CALLBACK) && !action.getCamera() && !action.getKeyboard()) {
@@ -61,6 +54,9 @@ public class IntentReceiver extends DefaultIntentReceiver {
 						Log.i(TAG, "action handled successfully");
 				        Notificare.shared().getEventLogger().logOpenNotificationInfluenced(notificationId);
 				        Notificare.shared().getEventLogger().logOpenNotification(notificationId);
+				        if (inboxItemId != null) {
+							Notificare.shared().getInboxManager().markItem(inboxItemId);
+						}
 					}
 					
 					@Override
@@ -74,6 +70,7 @@ public class IntentReceiver extends DefaultIntentReceiver {
 		} else {
 			KrollDict event = new KrollDict();
 			try {
+				event.put("itemId", inboxItemId);
 			    event.put("notification", NotificareTitaniumAndroidModule.jsonToObject(notification.toJSONObject()));
 			    event.put("alert", alert);
 			    event.put("extras", notification.getExtra());
@@ -90,7 +87,7 @@ public class IntentReceiver extends DefaultIntentReceiver {
 					Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
 					if (launchIntent != null) {
 						launchIntent.setAction(Notificare.INTENT_ACTION_NOTIFICATION_OPENED)
-						.putExtra(Notificare.INTENT_EXTRA_NOTIFICATION, notification)
+						.putExtras(extras)
 						.putExtra(Notificare.INTENT_EXTRA_DISPLAY_MESSAGE, Notificare.shared().getDisplayMessage())
 						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						Notificare.shared().getApplicationContext().startActivity(launchIntent);

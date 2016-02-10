@@ -164,10 +164,16 @@ notificare.addEventListener('registered', function(e) {
 	}
 
 	if (Ti.Platform.name == "android") {
-		notificare.enableLocationUpdates();
+		notificare.enableLocationUpdates(function(e) {
+			// Callback for Android M permissions
+			if (e.success) {
+				// Try again after permissions are allowed
+				notificare.enableLocationUpdates();
+				notificare.enableBeacons();
+			}
+		});
 		notificare.enableBeacons();
-	}
-	
+	}	
 	notificare.addTags(['one', 'two']);
 	notificare.logCustomEvent('titanium', {test: true});
 	

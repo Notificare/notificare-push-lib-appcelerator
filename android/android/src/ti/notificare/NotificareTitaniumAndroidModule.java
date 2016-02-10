@@ -337,23 +337,21 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	/**
 	 * Get a sorted list of inbox items
 	 * @return
+	 * @deprecated use {{@link #fetchInbox(int, int, KrollFunction)} instead
 	 */
 	@Kroll.method
 	public Object[] getInboxItems() {
 		Set<NotificareInboxItem> items = Notificare.shared().getInboxManager().getItems();
 		List<KrollDict> itemList = new ArrayList<KrollDict>(items.size());
 		for (NotificareInboxItem notificareInboxItem : items) {
-			try {
-				KrollDict item = new KrollDict();
-				item.put("status", notificareInboxItem.getStatus());
-				item.put("timestamp", dateFormatter.format(notificareInboxItem.getTimestamp()));
-				item.put("notification", jsonToObject(notificareInboxItem.getNotification().toJSONObject()));
-				itemList.add(item);
-			} catch (JSONException e) {
-				Log.e(TAG, "JSON parse error");
-			}
-		}
-		
+			KrollDict item = new KrollDict();
+			item.put("itemId", notificareInboxItem.getItemId());
+			item.put("status", notificareInboxItem.getStatus());
+			item.put("message", notificareInboxItem.getNotification().getMessage());
+			item.put("timestamp", dateFormatter.format(notificareInboxItem.getTimestamp()));
+			item.put("notification", notificareInboxItem.getNotification().getNotificationId());
+			itemList.add(item);
+		}		
 		return itemList.toArray(new Object[itemList.size()]);
 	}
 	
@@ -363,7 +361,7 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
      * @param callbackContext
      */
 	@Kroll.method
-	protected KrollDict fetchInbox(@Kroll.argument(optional=true, name="skip") int skip, @Kroll.argument(optional=true, name="limit") int limit) {
+	protected void fetchInbox(@Kroll.argument(optional=true, name="skip") int skip, @Kroll.argument(optional=true, name="limit") int limit, @Kroll.argument(optional=false, name="success") KrollFunction success) {
         int size = Notificare.shared().getInboxManager().getItems().size();
 		if (limit <= 0) {
 		    limit = DEFAULT_LIST_SIZE;
@@ -393,7 +391,9 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 		results.put("inbox", inbox.toArray(new Object[inbox.size()]));
 		results.put("total", size);
 		results.put("unread", Notificare.shared().getInboxManager().getUnreadCount());
-		return results;
+		if (success != null) {
+			success.callAsync(getKrollObject(), results);
+		}
 	}
 
 	
@@ -402,15 +402,22 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	 * @param item
 	 */
 	@Kroll.method
-	public void markInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item) {
+	public void markInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success")KrollFunction success, @Kroll.argument(optional=true, name="error")KrollFunction error) {
 		try {
 			// Reconstruct the item, comparison is done by notification only
-			NotificareNotification notification = new NotificareNotification((JSONObject)objectToJson(item.get("notification")));
-			Boolean status = (Boolean)objectToJson(item.get("status"));
-			NotificareInboxItem inboxItem = new NotificareInboxItem(notification, status);
+			final NotificareInboxItem inboxItem = new NotificareInboxItem((JSONObject)objectToJson(item));
+			Notificare.shared().getEventLogger().logOpenNotification(inboxItem.getNotification().getNotificationId());
 			Notificare.shared().getInboxManager().markItem(inboxItem);
+			if (success != null) {
+				success.callAsync(getKrollObject(), new KrollDict());
+			}
 		} catch (JSONException e) {
 			Log.e(TAG, "error parsing inboxitem");
+			if (error != null) {
+				KrollDict errorMessage = new KrollDict();
+				errorMessage.put("error", "error parsing inboxitem");
+				error.callAsync(getKrollObject(), errorMessage);				
+			}
 		}
 	}
 
@@ -419,16 +426,67 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	 * @param item
 	 */
 	@Kroll.method
-	public void removeInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item) {
+	public void removeInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success") final KrollFunction success, @Kroll.argument(optional=true, name="error") final KrollFunction error) {
 		try {
 			// Reconstruct the item, comparison is done by notification only
-			NotificareNotification notification = new NotificareNotification((JSONObject)objectToJson(item.get("notification")));
-			Boolean status = (Boolean)objectToJson(item.get("status"));
-			NotificareInboxItem inboxItem = new NotificareInboxItem(notification, status);
-			Notificare.shared().getInboxManager().removeItem(inboxItem);
+			final NotificareInboxItem inboxItem = new NotificareInboxItem((JSONObject)objectToJson(item));
+			Notificare.shared().deleteInboxItem(inboxItem.getItemId(), new NotificareCallback<Boolean>() {
+				@Override
+				public void onSuccess(Boolean result) {
+					Notificare.shared().getInboxManager().removeItem(inboxItem);
+					if (success == null) {
+						return;
+					}
+					success.callAsync(getKrollObject(), new KrollDict());
+				}
+
+				@Override
+				public void onError(NotificareError notificareError) {
+					if (error == null) {
+						return;
+					}
+					if (error != null) {
+						KrollDict errorMessage = new KrollDict();
+						errorMessage.put("error", "Could not delete inbox item");
+						error.callAsync(getKrollObject(), errorMessage);				
+					}
+				}
+			});
+
 		} catch (JSONException e) {
 			Log.e(TAG, "error parsing inboxitem");
+			if (error != null) {
+				KrollDict errorMessage = new KrollDict();
+				errorMessage.put("error", "error parsing inboxitem");
+				error.callAsync(getKrollObject(), errorMessage);				
+			}
 		}
+	}
+	
+	@Kroll.method
+	public void clearInbox(@Kroll.argument(optional=true, name="success") final KrollFunction success, @Kroll.argument(optional=true, name="error") final KrollFunction error) {
+		Notificare.shared().clearInbox(new NotificareCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                Notificare.shared().getInboxManager().clearInbox();
+				if (success == null) {
+					return;
+				}
+                success.callAsync(getKrollObject(), new KrollDict());
+            }
+
+            @Override
+            public void onError(NotificareError notificareError) {
+				if (error == null) {
+					return;
+				}
+				if (error != null) {
+					KrollDict errorMessage = new KrollDict();
+					errorMessage.put("error", "Failed to clear inbox");
+					error.callAsync(getKrollObject(), errorMessage);				
+				}
+            }
+        });
 	}
 	
 	/**
