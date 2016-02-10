@@ -960,37 +960,47 @@ enum {
 
 -(void)fetchInbox:(id)arg{
     
+    ENSURE_UI_THREAD(fetchInbox, arg);
+    
     ENSURE_UI_THREAD_1_ARG(arg);
     
     id _out = nil;
-    ENSURE_ARG_AT_INDEX(_out, arg, 3, KrollCallback);
-    NSString * dateString = (NSString*)arg[0];
-    NSString * skip = (NSString*)arg[1];
-    NSString * limit = (NSString*)arg[2];
-    KrollCallback *callback = (KrollCallback*)arg[3];
+    ENSURE_ARG_AT_INDEX(_out, arg, 0, KrollCallback);
+    //NSString * dateString = (NSString*)arg[0];
+    //NSString * skip = (NSString*)arg[1];
+    //NSString * limit = (NSString*)arg[2];
+    KrollCallback *callback = (KrollCallback*)arg[0];
     
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss Z"];
-    NSDate *sinceDate = [dateFormatter dateFromString:dateString];
+    //NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    //[dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss Z"];
+    //NSDate *sinceDate = [dateFormatter dateFromString:dateString];
 
     
     NSMutableDictionary * trans = [NSMutableDictionary dictionary];
     
-    [[NotificarePushLib shared] fetchInbox:sinceDate skip:[NSNumber numberWithInt:[skip intValue]] limit:[NSNumber numberWithInt:[limit intValue]] completionHandler:^(NSDictionary *info) {
+    [[NotificarePushLib shared] fetchInbox:nil skip:nil limit:nil completionHandler:^(NSDictionary *info) {
         
         NSMutableArray * inbox = [NSMutableArray array];
         
         for (NotificareDeviceInbox * inb in [info objectForKey:@"inbox"]) {
             NSMutableDictionary * i = [NSMutableDictionary dictionary];
+            
             [i setObject:[inb inboxId] forKey:@"id"];
             [i setObject:[inb applicationId] forKey:@"application"];
             [i setObject:[inb deviceID] forKey:@"deviceID"];
-            [i setObject:[inb userID] forKey:@"userID"];
-            [i setObject:[inb message] forKey:@"message"];
-            [i setObject:[inb data] forKey:@"data"];
             [i setObject:[inb notification] forKey:@"notification"];
             [i setObject:[inb time] forKey:@"time"];
+            [i setObject:[inb message] forKey:@"message"];
             [i setObject:[NSNumber numberWithBool:[inb opened]] forKey:@"opened"];
+            
+            if([inb userID]){
+                [i setObject:[inb userID] forKey:@"userID"];
+            }
+            
+            if([inb data]){
+                [i setObject:[inb data] forKey:@"data"];
+            }
+            
             [inbox addObject:i];
         }
      
@@ -1019,11 +1029,11 @@ enum {
     
     id _out = nil;
     ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
-    NSString * inboxId = (NSString*)arg[0];
+    NSDictionary * inbox = (NSDictionary*)arg[0];
     KrollCallback *callback = (KrollCallback*)arg[1];
     
     NotificareDeviceInbox * item = [NotificareDeviceInbox new];
-    [item setInboxId:inboxId];
+    [item setInboxId:[inbox objectForKey:@"id"]];
     
     [[NotificarePushLib shared] removeFromInbox:item completionHandler:^(NSDictionary *info) {
         
@@ -1062,6 +1072,19 @@ enum {
         
         [callback call:@[er] thisObject:self];
     }];
+    
+}
+
+-(void)openInboxItem:(id)arg{
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    
+    NotificareDeviceInbox * item = [NotificareDeviceInbox new];
+    [item setInboxId:[arg objectForKey:@"id"]];
+    [item setMessage:[arg objectForKey:@"message"]];
+    
+    [[NotificarePushLib shared] openInboxItem:item];
     
 }
 
