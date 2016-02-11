@@ -45,8 +45,6 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
-	private static int DEFAULT_LIST_SIZE = 25;
-	
 	private Boolean ready = false;
 	
 	private String userID;
@@ -361,35 +359,20 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
      * @param callbackContext
      */
 	@Kroll.method
-	protected void fetchInbox(@Kroll.argument(optional=true, name="skip") int skip, @Kroll.argument(optional=true, name="limit") int limit, @Kroll.argument(optional=false, name="success") KrollFunction success) {
-        int size = Notificare.shared().getInboxManager().getItems().size();
-		if (limit <= 0) {
-		    limit = DEFAULT_LIST_SIZE;
-		}
-		if (skip < 0) {
-		    skip = 0;
-		}
-        if (skip > size) {
-            skip = size;
-        }
-        int end = limit + skip;
-        if (end > size) {
-            end = size;
-        }
-        List<NotificareInboxItem> items = new ArrayList<NotificareInboxItem>(Notificare.shared().getInboxManager().getItems()).subList(skip, end);
+	protected void fetchInbox(@Kroll.argument(optional=false, name="success") KrollFunction success) {
 		List<KrollDict> inbox = new ArrayList<KrollDict>();
-		for (NotificareInboxItem item : items) {
+		for (NotificareInboxItem item : Notificare.shared().getInboxManager().getItems()) {
 			KrollDict result = new KrollDict();
-            result.put("itemId", item.getItemId());
+            result.put("id", item.getItemId());
             result.put("notification", item.getNotification().getNotificationId());
             result.put("message", item.getNotification().getMessage());
-            result.put("status", item.getStatus());
-            result.put("timestamp", dateFormatter.format(item.getTimestamp()));
+            result.put("opened", item.getStatus());
+            result.put("time", dateFormatter.format(item.getTimestamp()));
             inbox.add(result);
 		}
 		KrollDict results = new KrollDict();
 		results.put("inbox", inbox.toArray(new Object[inbox.size()]));
-		results.put("total", size);
+		results.put("total", Notificare.shared().getInboxManager().getItems().size());
 		results.put("unread", Notificare.shared().getInboxManager().getUnreadCount());
 		if (success != null) {
 			success.callAsync(getKrollObject(), results);
@@ -402,22 +385,20 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	 * @param item
 	 */
 	@Kroll.method
-	public void markInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success")KrollFunction success, @Kroll.argument(optional=true, name="error")KrollFunction error) {
-		try {
-			// Reconstruct the item, comparison is done by notification only
-			final NotificareInboxItem inboxItem = new NotificareInboxItem((JSONObject)objectToJson(item));
+	public void markAsRead(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success")KrollFunction success, @Kroll.argument(optional=true, name="error")KrollFunction error) {
+		final NotificareInboxItem inboxItem = Notificare.shared().getInboxManager().getItem(item.getString("id"));
+		if (inboxItem != null) {
 			Notificare.shared().getEventLogger().logOpenNotification(inboxItem.getNotification().getNotificationId());
 			Notificare.shared().getInboxManager().markItem(inboxItem);
 			if (success != null) {
 				success.callAsync(getKrollObject(), new KrollDict());
-			}
-		} catch (JSONException e) {
-			Log.e(TAG, "error parsing inboxitem");
+			}				
+		} else {
 			if (error != null) {
 				KrollDict errorMessage = new KrollDict();
-				errorMessage.put("error", "error parsing inboxitem");
+				errorMessage.put("error", "unknown inboxitem");
 				error.callAsync(getKrollObject(), errorMessage);				
-			}
+			}				
 		}
 	}
 
@@ -426,10 +407,9 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 	 * @param item
 	 */
 	@Kroll.method
-	public void removeInboxItem(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success") final KrollFunction success, @Kroll.argument(optional=true, name="error") final KrollFunction error) {
-		try {
-			// Reconstruct the item, comparison is done by notification only
-			final NotificareInboxItem inboxItem = new NotificareInboxItem((JSONObject)objectToJson(item));
+	public void removeFromInbox(@Kroll.argument(optional=false, name="item") KrollDict item, @Kroll.argument(optional=true, name="success") final KrollFunction success, @Kroll.argument(optional=true, name="error") final KrollFunction error) {
+		final NotificareInboxItem inboxItem = Notificare.shared().getInboxManager().getItem(item.getString("id"));
+		if (inboxItem != null) {
 			Notificare.shared().deleteInboxItem(inboxItem.getItemId(), new NotificareCallback<Boolean>() {
 				@Override
 				public void onSuccess(Boolean result) {
@@ -451,16 +431,15 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
 						error.callAsync(getKrollObject(), errorMessage);				
 					}
 				}
-			});
-
-		} catch (JSONException e) {
-			Log.e(TAG, "error parsing inboxitem");
+			});				
+		} else {
 			if (error != null) {
 				KrollDict errorMessage = new KrollDict();
-				errorMessage.put("error", "error parsing inboxitem");
+				errorMessage.put("error", "unknown inboxitem");
 				error.callAsync(getKrollObject(), errorMessage);				
-			}
+			}				
 		}
+
 	}
 	
 	@Kroll.method
@@ -488,7 +467,19 @@ public class NotificareTitaniumAndroidModule extends KrollModule {
             }
         });
 	}
-	
+		
+	/**
+	 * Open a notification in a NotificationActivity
+	 * @param notificationObject
+	 */
+	@Kroll.method
+	public void openInboxItem(@Kroll.argument(optional=false, name="notification") KrollDict item) {
+		NotificareInboxItem inboxItem = Notificare.shared().getInboxManager().getItem(item.getString("id"));
+		if (inboxItem != null) {
+			openNotificationActivity(inboxItem.getNotification());				
+		}
+	}
+
 	/**
 	 * Open notification activity
 	 * @param notification

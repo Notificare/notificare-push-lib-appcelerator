@@ -1,7 +1,3 @@
-#
-# this is your module manifest and used by Titanium
-# during compilation, packaging, distribution, etc.
-#
 version: 1.7.0
 apiversion: 2
 architectures: armeabi armeabi-v7a x86

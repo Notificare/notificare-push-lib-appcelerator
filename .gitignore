@@ -25,5 +25,7 @@ xcuserdata/
 android/android/dist/
 android/android/build/
 android/android/libs/
+android/android/documentation
+android/android/example
 ios/iphone/build/
 /.gradle
