@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 1.7.1
+- Fix duplicate unread count updates when updating inbox items (T476)
+
 ## 1.7.0
 - updated to Android SDK level 23
 - include Location Permissions, storage permissions need to be set manually in Android M until new Titanium is released
