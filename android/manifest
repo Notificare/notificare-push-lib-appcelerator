@@ -1,4 +1,4 @@
-version: 1.7.1
+version: 1.7.3
 apiversion: 2
 architectures: armeabi armeabi-v7a x86
 description: notificare-titanium-android
