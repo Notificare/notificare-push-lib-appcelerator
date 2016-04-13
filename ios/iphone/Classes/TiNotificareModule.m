@@ -11,6 +11,8 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "NSData+Hex.h"
+#import "NotificareAsset.h"
+#import "NotificarePass.h"
 
 @implementation TiNotificareModule
 
@@ -1256,6 +1258,162 @@ enum {
     [trans setValue:[url query] forKey:@"query"];
     [trans setValue:[url port] forKey:@"port"];
     [self fireEvent:@"action" withObject:trans];
+    
+}
+
+
+-(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(NotificareNotification *)notification{
+    
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:[notification notificationID] forKey:@"id"];
+    [trans setValue:[notification notificationType] forKey:@"type"];
+    [trans setValue:[notification notificationTime] forKey:@"time"];
+    [trans setValue:[notification notificationMessage] forKey:@"message"];
+    
+    if([notification notificationExtra]){
+        [trans setObject:[notification notificationExtra] forKey:@"extra"];
+    }
+    
+    [trans setObject:[notification notificationInfo] forKey:@"info"];
+    [trans setObject:[notification notificationTags] forKey:@"tags"];
+    [trans setObject:[notification notificationSegments] forKey:@"segments"];
+    
+    if([notification notificationLatitude] && [notification notificationLongitude] && [notification notificationDistance]){
+        
+        NSMutableDictionary * location = [NSMutableDictionary dictionary];
+        [location setValue:[notification notificationLatitude] forKey:@"latitude"];
+        [location setValue:[notification notificationLongitude] forKey:@"longitude"];
+        [location setValue:[notification notificationDistance] forKey:@"distance"];
+        [trans setObject:location forKey:@"location"];
+        
+    }
+
+    
+    NSMutableArray * content = [NSMutableArray array];
+    for (NotificareContent * c in [notification notificationContent]) {
+        NSMutableDictionary * cont = [NSMutableDictionary dictionary];
+        [cont setObject:[c type] forKey:@"type"];
+        [cont setObject:[c data] forKey:@"data"];
+        [content addObject:cont];
+    }
+    [trans setObject:content forKey:@"content"];
+    
+    NSMutableArray * actions = [NSMutableArray array];
+    for (NotificareAction * a in [notification notificationActions]) {
+        NSMutableDictionary * act = [NSMutableDictionary dictionary];
+        [act setValue:[a actionLabel] forKey:@"label"];
+        [act setValue:[a actionType] forKey:@"type"];
+        [act setValue:[a actionTarget] forKey:@"type"];
+        [act setObject:[a actionCamera] forKey:@"camera"];
+        [act setObject:[a actionKeyboard] forKey:@"keyboard"];
+        [actions addObject:act];
+    }
+    [trans setObject:actions forKey:@"actions"];
+    
+    
+    [message setObject:trans forKey:@"notification"];
+
+    [self fireEvent:@"notification" withObject:message];
+    
+}
+
+-(void)fetchAssets:(id)arg{
+    
+    ENSURE_UI_THREAD(fetchAssets, arg);
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSString * group = (NSString*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
+    
+
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    
+    [[NotificarePushLib shared] fetchAssets:group completionHandler:^(NSArray *files) {
+        
+        NSMutableArray * assets = [NSMutableArray array];
+        
+        for (NotificareAsset * f in files) {
+
+            NSMutableDictionary * file = [NSMutableDictionary dictionary];
+            [file setValue:[f assetTitle] forKey:@"title"];
+            [file setValue:[f assetDescription] forKey:@"description"];
+            [file setValue:[f assetUrl] forKey:@"url"];
+            [file setObject:[f assetMetaData] forKey:@"metaData"];
+            [file setObject:[f assetButton] forKey:@"button"];
+            [assets addObject:file];
+            
+        }
+        
+        [trans setObject:assets forKey:@"assets"];
+        
+        [callback call:@[trans] thisObject:self];
+        
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
+    
+    
+}
+
+
+-(void)fetchPass:(id)arg{
+    
+    ENSURE_UI_THREAD(fetchPass, arg);
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSString * serial = (NSString*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
+    
+    [[NotificarePushLib shared] fetchPass:serial completionHandler:^(NotificarePass *pass) {
+        NSMutableDictionary * passObject = [NSMutableDictionary dictionary];
+        NSMutableDictionary * p = [NSMutableDictionary dictionary];
+        [p setValue:[pass passbook] forKey:@"passbook"];
+        [p setValue:[pass serial] forKey:@"serial"];
+        [p setObject:[pass data] forKey:@"data"];
+        
+        NSDateFormatter *dateFormatter=[[NSDateFormatter alloc]init];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        NSString *dateString = [dateFormatter stringFromDate:[pass date]];
+        
+        [p setObject:dateString forKey:@"date"];
+        [p setObject:[pass limit] forKey:@"limit"];
+        [p setObject:[pass redeemHistory] forKey:@"redeemHistory"];
+        [p setObject:[pass redeem] forKey:@"redeem"];
+        [p setObject:[NSNumber numberWithInt:[pass active]] forKey:@"active"];
+        
+        if([pass token]){
+            [p setObject:[pass token] forKey:@"token"];
+        }
+        
+        [passObject setObject:p forKey:@"pass"];
+        
+        [callback call:@[passObject] thisObject:self];
+        
+    } errorHandler:^(NSError *error) {
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
+    
     
 }
 

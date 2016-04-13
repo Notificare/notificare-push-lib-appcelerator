@@ -56,6 +56,20 @@ notificare.addEventListener('ready',function(e) {
 	//		Ti.API.info("Message: " + e.success.message);
 	//	}
 	//});
+	
+	/*
+	notificare.fetchAssets('test', function(e){
+	 	if (e && e.assets && e.assets.length > 0) {
+			e.assets.forEach(function(asset) {
+				Ti.API.info("Asset: " + asset.title);
+				Ti.API.info("Asset: " + asset.description);
+				Ti.API.info("Asset: " + asset.metaData);
+				Ti.API.info("Asset: " + asset.button);
+				Ti.API.info("Asset: " + asset.url);
+			});
+		}
+	 });
+	 */
 });
 
 
@@ -95,6 +109,22 @@ notificare.addEventListener('registered', function(e) {
 			});
 		});
 	  */
+	 
+	 /*
+	  notificare.fetchPass('efbfc9bd-7249-4f46-8f4d-fb564cd679d3', function(e){
+	 	if (e && e.pass) {
+			Ti.API.info("Pass: " + e.pass.passbook);
+			Ti.API.info("Pass: " + e.pass.serial);
+			Ti.API.info("Pass: " + e.pass.data);
+			Ti.API.info("Pass: " + e.pass.date);
+			Ti.API.info("Pass: " + e.pass.redeem);
+			Ti.API.info("Pass: " + e.pass.redeemHistory);
+			Ti.API.info("Pass: " + e.pass.limit);
+			Ti.API.info("Pass: " + e.pass.active);
+			Ti.API.info("Pass: " + e.pass.token);
+		}
+	 });
+	  */
 });
 
 notificare.addEventListener('action', function(e){
@@ -104,6 +134,7 @@ notificare.addEventListener('action', function(e){
  	}
 	 
 });
+
 
 // Triggered every time device tags change
 notificare.addEventListener('tags', function(e) {
@@ -126,6 +157,11 @@ Ti.App.iOS.addEventListener('remotenotificationaction', function(e) {
 	 		Ti.API.info(e.error.message);
 	 	}
 	 });
+});
+
+//Fired whenever a notification is opened, it can be used to catch the full notification object
+notificare.addEventListener('notification', function(e) {
+	Ti.API.info("Notification: " + e.notification.message);
 });
 
 
