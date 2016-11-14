@@ -74,15 +74,6 @@ notificare.addEventListener('ready',function(e) {
 
 
 
-notificare.addEventListener('action', function(e){
-	
-	if (e.target) {
- 		Ti.API.info(e.target);
- 	}
-	 
-});
-
-
 //Implement this listener to react on clicks from iOS8+ interactive notifications 
 Ti.App.iOS.addEventListener('remotenotificationaction', function(e) {
 	 notificare.handleAction({
@@ -97,14 +88,20 @@ Ti.App.iOS.addEventListener('remotenotificationaction', function(e) {
 	 });
 });
 
-//Fired whenever a notification is opened, it can be used to catch the full notification object
-notificare.addEventListener('notification', function(e) {
-	Ti.API.info("Notification: " + e.notification.message);
+//Fired whenever a notification is opened, it can be used to refresh UI
+notificare.addEventListener('didOpenNotification', function(e) {
+	Ti.API.info("Notification: " + e.notification.id);
 });
 
+//Fired whenever an action is executed, it can be used to refresh UI
+notificare.addEventListener('didExecuteAction', function(e){
+	
+	Ti.API.info(e);
+	 
+});
 
 //Fired whenever app is in foreground and in range of any of the beacons inserted in the current region
-notificare.addEventListener('range', function(e) {
+notificare.addEventListener('didRangeBeacons', function(e) {
 	//Ti.API.info("Beacon: " + e);
 	if (e && e.beacons && e.beacons.length > 0) {
 		e.beacons.forEach(function(beacon) {
@@ -137,67 +134,48 @@ function deviceTokenSuccess(e) {
 	setTimeout(function() {
 		Ti.API.info(e.deviceToken);
     	notificare.registerDevice(e.deviceToken, function(e){
-    		notificare.startLocationUpdates(e);
-    		//notificare.fetchTags(function(e){
-			 // 	
-			 //});
-			 //var tags = ['one','two'];
-			 //notificare.addTags(tags, function(e){
-			 // 	
-			 //});
-			 
-			 //notificare.clearTags(function(e){
-			 // 	
-			 //});
-
-			 //notificare.removeTag('one', function(e){
-			 // 	
-			 //});
-			 
-			 //notificare.openUserPreferences(e);
-			 //notificare.openBeacons(e);
-			 
-			 /*
-				notificare.fetchInbox(function(e){
-					Ti.API.info(e.inbox);
-					
-					e.inbox.forEach(function(item){
-						//Open inbox item
-						notificare.openInboxItem(item);
-						
-						//Mark as read
-						notificare.markAsRead(item, function(response){
-							
-						});
-						
-						//Remove item
-						notificare.removeFromInbox(item, function(response){
-							
-						});
-						
-						//Remove all items
-						notificare.clearInbox(function(response){
-							
-						});
-					});
+    		
+			if (!e.error) {
+    			
+				notificare.startLocationUpdates(e);
+    		
+				notificare.fetchTags(function(e){
+					Ti.API.info(e.tags);
 				});
-			  */
-			 
-			 /*
-			  notificare.fetchPass('efbfc9bd-7249-4f46-8f4d-fb564cd679d3', function(e){
-			 	if (e && e.pass) {
-					Ti.API.info("Pass: " + e.pass.passbook);
-					Ti.API.info("Pass: " + e.pass.serial);
-					Ti.API.info("Pass: " + e.pass.data);
-					Ti.API.info("Pass: " + e.pass.date);
-					Ti.API.info("Pass: " + e.pass.redeem);
-					Ti.API.info("Pass: " + e.pass.redeemHistory);
-					Ti.API.info("Pass: " + e.pass.limit);
-					Ti.API.info("Pass: " + e.pass.active);
-					Ti.API.info("Pass: " + e.pass.token);
-				}
-			 });
-			  */
+				 
+				var tags = ['appcelerator'];
+				notificare.addTags(tags, function(e){
+				  	
+				});
+				 
+				//notificare.clearTags(function(e){
+				// 	
+				//});
+				
+				//notificare.removeTag('appcelerator', function(e){
+				// 	
+				//});
+				 
+				//notificare.openUserPreferences(e);
+				//notificare.openBeacons(e);
+				 
+				 /*
+				  notificare.fetchPass('efbfc9bd-7249-4f46-8f4d-fb564cd679d3', function(e){
+				 	if (e && e.pass) {
+						Ti.API.info("Pass: " + e.pass.passbook);
+						Ti.API.info("Pass: " + e.pass.serial);
+						Ti.API.info("Pass: " + e.pass.data);
+						Ti.API.info("Pass: " + e.pass.date);
+						Ti.API.info("Pass: " + e.pass.redeem);
+						Ti.API.info("Pass: " + e.pass.redeemHistory);
+						Ti.API.info("Pass: " + e.pass.limit);
+						Ti.API.info("Pass: " + e.pass.active);
+						Ti.API.info("Pass: " + e.pass.token);
+					}
+				 });
+				  */
+    		}
+    		
     	});
  	}, 0);
 }
