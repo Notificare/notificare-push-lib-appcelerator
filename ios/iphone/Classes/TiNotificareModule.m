@@ -1305,8 +1305,8 @@ enum {
         [act setValue:[a actionLabel] forKey:@"label"];
         [act setValue:[a actionType] forKey:@"type"];
         [act setValue:[a actionTarget] forKey:@"type"];
-        [act setObject:[a actionCamera] forKey:@"camera"];
-        [act setObject:[a actionKeyboard] forKey:@"keyboard"];
+        [act setObject:[NSNumber numberWithBool:[a actionCamera]] forKey:@"camera"];
+        [act setObject:[NSNumber numberWithBool:[a actionKeyboard]] forKey:@"keyboard"];
         [actions addObject:act];
     }
     [trans setObject:actions forKey:@"actions"];
