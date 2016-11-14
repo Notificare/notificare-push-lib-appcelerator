@@ -73,59 +73,6 @@ notificare.addEventListener('ready',function(e) {
 });
 
 
-//Listen for the device registered event
-//Only after this event occurs it is safe to call any other method
-notificare.addEventListener('registered', function(e) {
-	notificare.startLocationUpdates(e);
-	 //var tags = ['one','two'];
-	 //notificare.addTags(tags);
-	 //notificare.clearTags();
-	 //notificare.openUserPreferences(e);
-	 //notificare.openBeacons(e);
-	 //notificare.removeTag('one');
-	 
-	 /*
-		notificare.fetchInbox(function(e){
-			Ti.API.info(e.inbox);
-			
-			e.inbox.forEach(function(item){
-				//Open inbox item
-				notificare.openInboxItem(item);
-				
-				//Mark as read
-				notificare.markAsRead(item, function(response){
-					
-				});
-				
-				//Remove item
-				notificare.removeFromInbox(item, function(response){
-					
-				});
-				
-				//Remove all items
-				notificare.clearInbox(function(response){
-					
-				});
-			});
-		});
-	  */
-	 
-	 /*
-	  notificare.fetchPass('efbfc9bd-7249-4f46-8f4d-fb564cd679d3', function(e){
-	 	if (e && e.pass) {
-			Ti.API.info("Pass: " + e.pass.passbook);
-			Ti.API.info("Pass: " + e.pass.serial);
-			Ti.API.info("Pass: " + e.pass.data);
-			Ti.API.info("Pass: " + e.pass.date);
-			Ti.API.info("Pass: " + e.pass.redeem);
-			Ti.API.info("Pass: " + e.pass.redeemHistory);
-			Ti.API.info("Pass: " + e.pass.limit);
-			Ti.API.info("Pass: " + e.pass.active);
-			Ti.API.info("Pass: " + e.pass.token);
-		}
-	 });
-	  */
-});
 
 notificare.addEventListener('action', function(e){
 	
@@ -135,15 +82,6 @@ notificare.addEventListener('action', function(e){
 	 
 });
 
-
-// Triggered every time device tags change
-notificare.addEventListener('tags', function(e) {
-	if (e && e.tags && e.tags.length > 0) {
-		e.tags.forEach(function(tag) {
-			Ti.API.info("Device Tag: " + tag);
-		});
-	}
-});
 
 //Implement this listener to react on clicks from iOS8+ interactive notifications 
 Ti.App.iOS.addEventListener('remotenotificationaction', function(e) {
@@ -198,7 +136,69 @@ function receivePush(e) {
 function deviceTokenSuccess(e) {
 	setTimeout(function() {
 		Ti.API.info(e.deviceToken);
-    	notificare.registerDevice(e.deviceToken);
+    	notificare.registerDevice(e.deviceToken, function(e){
+    		notificare.startLocationUpdates(e);
+    		//notificare.fetchTags(function(e){
+			 // 	
+			 //});
+			 //var tags = ['one','two'];
+			 //notificare.addTags(tags, function(e){
+			 // 	
+			 //});
+			 
+			 //notificare.clearTags(function(e){
+			 // 	
+			 //});
+
+			 //notificare.removeTag('one', function(e){
+			 // 	
+			 //});
+			 
+			 //notificare.openUserPreferences(e);
+			 //notificare.openBeacons(e);
+			 
+			 /*
+				notificare.fetchInbox(function(e){
+					Ti.API.info(e.inbox);
+					
+					e.inbox.forEach(function(item){
+						//Open inbox item
+						notificare.openInboxItem(item);
+						
+						//Mark as read
+						notificare.markAsRead(item, function(response){
+							
+						});
+						
+						//Remove item
+						notificare.removeFromInbox(item, function(response){
+							
+						});
+						
+						//Remove all items
+						notificare.clearInbox(function(response){
+							
+						});
+					});
+				});
+			  */
+			 
+			 /*
+			  notificare.fetchPass('efbfc9bd-7249-4f46-8f4d-fb564cd679d3', function(e){
+			 	if (e && e.pass) {
+					Ti.API.info("Pass: " + e.pass.passbook);
+					Ti.API.info("Pass: " + e.pass.serial);
+					Ti.API.info("Pass: " + e.pass.data);
+					Ti.API.info("Pass: " + e.pass.date);
+					Ti.API.info("Pass: " + e.pass.redeem);
+					Ti.API.info("Pass: " + e.pass.redeemHistory);
+					Ti.API.info("Pass: " + e.pass.limit);
+					Ti.API.info("Pass: " + e.pass.active);
+					Ti.API.info("Pass: " + e.pass.token);
+				}
+			 });
+			  */
+    	});
  	}, 0);
 }
 

@@ -83,6 +83,61 @@ enum {
 }
 
 
+
+-(void)notificarePushLib:(NotificarePushLib *)library willOpenNotification:(NotificareNotification *)notification{
+    
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
+    
+    [self fireEvent:@"notification" withObject:message];
+    
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(NotificareNotification *)notification{
+    
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
+    
+    [self fireEvent:@"notification" withObject:message];
+    
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelector:(NSString *)selector{
+    
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:selector forKey:@"target"];
+    [self fireEvent:@"action" withObject:trans];
+    
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelectorWithURL:(NSURL *)url{
+    
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:[url scheme] forKey:@"scheme"];
+    [trans setValue:[url host] forKey:@"host"];
+    [trans setValue:[url path] forKey:@"path"];
+    [trans setValue:[url query] forKey:@"query"];
+    [trans setValue:[url port] forKey:@"port"];
+    [self fireEvent:@"action" withObject:trans];
+    
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library didClickURL:(nonnull NSURL *)url inNotification:(nonnull NotificareNotification *)notification{
+    
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:[url scheme] forKey:@"scheme"];
+    [trans setValue:[url host] forKey:@"host"];
+    [trans setValue:[url path] forKey:@"path"];
+    [trans setValue:[url query] forKey:@"query"];
+    [trans setValue:[url port] forKey:@"port"];
+    [trans setValue:[self dictionaryFromNotification:notification] forKey:@"notification"];
+    
+    [self fireEvent:@"action" withObject:trans];
+    
+}
+
+
+
 - (void)notificarePushLib:(NotificarePushLib *)library didChangeAccountNotification:(NSDictionary *)info{
 
 //    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
@@ -324,8 +379,14 @@ enum {
 
 -(void)registerDevice:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg, NSString);
     ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    
+    NSString * device = (NSString*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
     
     // The token received in the success callback to 'Ti.Network.registerForPushNotifications' is a hex-encode
     // string. We need to convert it back to it's byte format as an NSData object.
@@ -334,9 +395,9 @@ enum {
     unsigned char whole_byte;
     char byte_chars[3] = { '\0', '\0', '\0' };
     int i;
-    for (i=0; i<[arg length]/2; i++) {
-        byte_chars[0] = [arg characterAtIndex:i*2];
-        byte_chars[1] = [arg characterAtIndex:i*2+1];
+    for (i=0; i<[device length]/2; i++) {
+        byte_chars[0] = [device characterAtIndex:i*2];
+        byte_chars[1] = [device characterAtIndex:i*2+1];
         whole_byte = strtol(byte_chars, NULL, 16);
         [token appendBytes:&whole_byte length:1];
     }
@@ -346,54 +407,61 @@ enum {
         
         [[NotificarePushLib shared] registerDevice:token withUserID:userId withUsername:username completionHandler:^(NSDictionary *info) {
             //
-            [self fireEvent:@"registered" withObject:info];
-            
-            [self getTags];
+            [callback call:@[info] thisObject:self];
+
             
         } errorHandler:^(NSError *error) {
             //
+            NSMutableDictionary * er = [NSMutableDictionary dictionary];
+            NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+            [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+            [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+            
+            [er setObject:obj forKey:@"error"];
+            
+            [callback call:@[er] thisObject:self];
         }];
 
     } else if(userId && !username){
         [[NotificarePushLib shared] registerDevice:token withUserID:userId completionHandler:^(NSDictionary *info) {
             //
-            [self fireEvent:@"registered" withObject:info];
-            [self getTags];
+            [callback call:@[info] thisObject:self];
+
         } errorHandler:^(NSError *error) {
             //
+            NSMutableDictionary * er = [NSMutableDictionary dictionary];
+            NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+            [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+            [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+            
+            [er setObject:obj forKey:@"error"];
+            
+            [callback call:@[er] thisObject:self];
         }];
     } else {
         [[NotificarePushLib shared] registerDevice:token completionHandler:^(NSDictionary *info) {
             //
-            [self fireEvent:@"registered" withObject:info];
-            [self getTags];
+            [callback call:@[info] thisObject:self];
+
         } errorHandler:^(NSError *error) {
             //
+            NSMutableDictionary * er = [NSMutableDictionary dictionary];
+            NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+            [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+            [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+            
+            [er setObject:obj forKey:@"error"];
+            
+            [callback call:@[er] thisObject:self];
         }];
     }
  
 }
 
--(void)getTags{
-    [[NotificarePushLib shared] getTags:^(NSDictionary *info) {
-        NSMutableArray * t = [NSMutableArray array];
-        for (NSString * tag in [info objectForKey:@"tags"]) {
-            [t addObject:tag];
-        }
-        
-        NSMutableDictionary * tags = [NSMutableDictionary dictionary];
-        [tags setValue:t forKey:@"tags"];
-        
-        [self fireEvent:@"tags" withObject:tags];
-        
-    } errorHandler:^(NSError *error) {
-        //
-    }];
-}
 
 -(void)startLocationUpdates:(id)arg
 {
-
+    
     ENSURE_UI_THREAD(startLocationUpdates, arg);
     [[NotificarePushLib shared] startLocationUpdates];
     
@@ -406,12 +474,46 @@ enum {
     // the remote notification
     
     ENSURE_UI_THREAD_1_ARG(arg);
-
+    
     id userInfo = [arg objectAtIndex:0];
     ENSURE_DICT(userInfo);
     
-   [[NotificarePushLib shared] openNotification:userInfo];
+    [[NotificarePushLib shared] openNotification:userInfo];
     
+}
+
+
+
+-(void)fetchTags:(id)arg{
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 0, KrollCallback);
+    KrollCallback *callback = (KrollCallback*)arg[0];
+    
+    [[NotificarePushLib shared] getTags:^(NSDictionary *info) {
+        NSMutableArray * t = [NSMutableArray array];
+        for (NSString * tag in [info objectForKey:@"tags"]) {
+            [t addObject:tag];
+        }
+        
+        NSMutableDictionary * tags = [NSMutableDictionary dictionary];
+        [tags setValue:t forKey:@"tags"];
+        
+        [callback call:@[tags] thisObject:self];
+        
+    } errorHandler:^(NSError *error) {
+        //
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
+    }];
 }
 
 
@@ -419,13 +521,28 @@ enum {
 {
 
     ENSURE_UI_THREAD_1_ARG(arg);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSArray * tags = (NSArray*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
+    
+    ENSURE_UI_THREAD_1_ARG(arg);
     ENSURE_SINGLE_ARG(arg, NSArray);
     
-    [[NotificarePushLib shared] addTags:arg completionHandler:^(NSDictionary *info) {
+    [[NotificarePushLib shared] addTags:tags completionHandler:^(NSDictionary *info) {
         //
-        [self getTags];
+        [callback call:@[info] thisObject:self];
     } errorHandler:^(NSError *error) {
         //
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
     }];
     
 }
@@ -433,24 +550,47 @@ enum {
 -(void)removeTag:(id)arg
 {
     ENSURE_UI_THREAD_1_ARG(arg);
-    ENSURE_SINGLE_ARG(arg, NSString);
+    
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 1, KrollCallback);
+    NSString * tag = (NSString*)arg[0];
+    KrollCallback *callback = (KrollCallback*)arg[1];
 
-    [[NotificarePushLib shared] removeTag:arg completionHandler:^(NSDictionary *info) {
-        [self getTags];
+    [[NotificarePushLib shared] removeTag:tag completionHandler:^(NSDictionary *info) {
+        [callback call:@[info] thisObject:self];
     } errorHandler:^(NSError *error) {
         //
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
     }];
     
 }
 
 -(void)clearTags:(id)arg
 {
-    ENSURE_UI_THREAD_0_ARGS;
+    ENSURE_UI_THREAD_1_ARG(arg);
+    id _out = nil;
+    ENSURE_ARG_AT_INDEX(_out, arg, 0, KrollCallback);
+    KrollCallback *callback = (KrollCallback*)arg[0];
     
     [[NotificarePushLib shared] clearTags:^(NSDictionary *info) {
-        [self getTags];
+        [callback call:@[info] thisObject:self];
     } errorHandler:^(NSError *error) {
         //
+        NSMutableDictionary * er = [NSMutableDictionary dictionary];
+        NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+        [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+        [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+        
+        [er setObject:obj forKey:@"error"];
+        
+        [callback call:@[er] thisObject:self];
     }];
     
 }
@@ -1241,83 +1381,6 @@ enum {
 
 
 
--(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelector:(NSString *)selector{
-   
-    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-    [trans setValue:selector forKey:@"target"];
-    [self fireEvent:@"action" withObject:trans];
-    
-}
-
--(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelectorWithURL:(NSURL *)url{
-    
-    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-    [trans setValue:[url scheme] forKey:@"scheme"];
-    [trans setValue:[url host] forKey:@"host"];
-    [trans setValue:[url path] forKey:@"path"];
-    [trans setValue:[url query] forKey:@"query"];
-    [trans setValue:[url port] forKey:@"port"];
-    [self fireEvent:@"action" withObject:trans];
-    
-}
-
-
--(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(NotificareNotification *)notification{
-    
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-    [trans setValue:[notification notificationID] forKey:@"id"];
-    [trans setValue:[notification notificationType] forKey:@"type"];
-    [trans setValue:[notification notificationTime] forKey:@"time"];
-    [trans setValue:[notification notificationMessage] forKey:@"message"];
-    
-    if([notification notificationExtra]){
-        [trans setObject:[notification notificationExtra] forKey:@"extra"];
-    }
-    
-    [trans setObject:[notification notificationInfo] forKey:@"info"];
-    [trans setObject:[notification notificationTags] forKey:@"tags"];
-    [trans setObject:[notification notificationSegments] forKey:@"segments"];
-    
-    if([notification notificationLatitude] && [notification notificationLongitude] && [notification notificationDistance]){
-        
-        NSMutableDictionary * location = [NSMutableDictionary dictionary];
-        [location setValue:[notification notificationLatitude] forKey:@"latitude"];
-        [location setValue:[notification notificationLongitude] forKey:@"longitude"];
-        [location setValue:[notification notificationDistance] forKey:@"distance"];
-        [trans setObject:location forKey:@"location"];
-        
-    }
-
-    
-    NSMutableArray * content = [NSMutableArray array];
-    for (NotificareContent * c in [notification notificationContent]) {
-        NSMutableDictionary * cont = [NSMutableDictionary dictionary];
-        [cont setObject:[c type] forKey:@"type"];
-        [cont setObject:[c data] forKey:@"data"];
-        [content addObject:cont];
-    }
-    [trans setObject:content forKey:@"content"];
-    
-    NSMutableArray * actions = [NSMutableArray array];
-    for (NotificareAction * a in [notification notificationActions]) {
-        NSMutableDictionary * act = [NSMutableDictionary dictionary];
-        [act setValue:[a actionLabel] forKey:@"label"];
-        [act setValue:[a actionType] forKey:@"type"];
-        [act setValue:[a actionTarget] forKey:@"type"];
-        [act setObject:[NSNumber numberWithBool:[a actionCamera]] forKey:@"camera"];
-        [act setObject:[NSNumber numberWithBool:[a actionKeyboard]] forKey:@"keyboard"];
-        [actions addObject:act];
-    }
-    [trans setObject:actions forKey:@"actions"];
-    
-    
-    [message setObject:trans forKey:@"notification"];
-
-    [self fireEvent:@"notification" withObject:message];
-    
-}
-
 -(void)fetchAssets:(id)arg{
     
     ENSURE_UI_THREAD(fetchAssets, arg);
@@ -1329,7 +1392,7 @@ enum {
     NSString * group = (NSString*)arg[0];
     KrollCallback *callback = (KrollCallback*)arg[1];
     
-
+    
     NSMutableDictionary * trans = [NSMutableDictionary dictionary];
     
     [[NotificarePushLib shared] fetchAssets:group completionHandler:^(NSArray *files) {
@@ -1337,7 +1400,7 @@ enum {
         NSMutableArray * assets = [NSMutableArray array];
         
         for (NotificareAsset * f in files) {
-
+            
             NSMutableDictionary * file = [NSMutableDictionary dictionary];
             [file setValue:[f assetTitle] forKey:@"title"];
             [file setValue:[f assetDescription] forKey:@"description"];
@@ -1415,6 +1478,61 @@ enum {
     }];
     
     
+}
+
+
+
+
+-(NSDictionary*)dictionaryFromNotification:(NotificareNotification*)notification{
+
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    [trans setValue:[notification notificationID] forKey:@"id"];
+    [trans setValue:[notification notificationType] forKey:@"type"];
+    [trans setValue:[notification notificationTime] forKey:@"time"];
+    [trans setValue:[notification notificationMessage] forKey:@"message"];
+    
+    if([notification notificationExtra]){
+        [trans setObject:[notification notificationExtra] forKey:@"extra"];
+    }
+    
+    [trans setObject:[notification notificationInfo] forKey:@"info"];
+    [trans setObject:[notification notificationTags] forKey:@"tags"];
+    [trans setObject:[notification notificationSegments] forKey:@"segments"];
+    
+    if([notification notificationLatitude] && [notification notificationLongitude] && [notification notificationDistance]){
+        
+        NSMutableDictionary * location = [NSMutableDictionary dictionary];
+        [location setValue:[notification notificationLatitude] forKey:@"latitude"];
+        [location setValue:[notification notificationLongitude] forKey:@"longitude"];
+        [location setValue:[notification notificationDistance] forKey:@"distance"];
+        [trans setObject:location forKey:@"location"];
+        
+    }
+    
+    
+    NSMutableArray * content = [NSMutableArray array];
+    for (NotificareContent * c in [notification notificationContent]) {
+        NSMutableDictionary * cont = [NSMutableDictionary dictionary];
+        [cont setObject:[c type] forKey:@"type"];
+        [cont setObject:[c data] forKey:@"data"];
+        [content addObject:cont];
+    }
+    [trans setObject:content forKey:@"content"];
+    
+    NSMutableArray * actions = [NSMutableArray array];
+    for (NotificareAction * a in [notification notificationActions]) {
+        NSMutableDictionary * act = [NSMutableDictionary dictionary];
+        [act setValue:[a actionLabel] forKey:@"label"];
+        [act setValue:[a actionType] forKey:@"type"];
+        [act setValue:[a actionTarget] forKey:@"type"];
+        [act setObject:[NSNumber numberWithBool:[a actionCamera]] forKey:@"camera"];
+        [act setObject:[NSNumber numberWithBool:[a actionKeyboard]] forKey:@"keyboard"];
+        [actions addObject:act];
+    }
+    [trans setObject:actions forKey:@"actions"];
+    
+    return trans;
+
 }
 
 
