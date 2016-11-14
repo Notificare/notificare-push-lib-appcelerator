@@ -84,7 +84,7 @@ enum {
 
 
 
--(void)notificarePushLib:(NotificarePushLib *)library willOpenNotification:(NotificareNotification *)notification{
+-(void)notificarePushLib:(NotificarePushLib *)library willOpenNotification:(nonnull NotificareNotification *)notification{
     
     NSMutableDictionary * message = [NSMutableDictionary dictionary];
     [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
@@ -93,7 +93,7 @@ enum {
     
 }
 
--(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(NotificareNotification *)notification{
+-(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(nonnull NotificareNotification *)notification{
     
     NSMutableDictionary * message = [NSMutableDictionary dictionary];
     [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
@@ -102,12 +102,57 @@ enum {
     
 }
 
--(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelector:(NSString *)selector{
+-(void)notificarePushLib:(NotificarePushLib *)library didFailToOpenNotification:(nonnull NotificareNotification *)notification{
+
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
     
-    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-    [trans setValue:selector forKey:@"target"];
-    [self fireEvent:@"action" withObject:trans];
+    [self fireEvent:@"notification" withObject:message];
     
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library didCloseNotification:(nonnull NotificareNotification *)notification {
+    
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
+    
+    [self fireEvent:@"notification" withObject:message];
+}
+
+
+
+-(void)notificarePushLib:(NotificarePushLib *)library willExecuteAction:(nonnull NotificareNotification *)notification{
+
+    NSMutableDictionary * message = [NSMutableDictionary dictionary];
+    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
+    
+    [self fireEvent:@"action" withObject:message];
+    
+}
+
+-(void)notificarePushLib:(NotificarePushLib *)library didExecuteAction:(nonnull NSDictionary *)info{
+
+    [self fireEvent:@"action" withObject:info];
+    
+}
+
+
+-(void)notificarePushLib:(NotificarePushLib *)library didNotExecuteAction:(nonnull NSDictionary *)info{
+ 
+    [self fireEvent:@"action" withObject:info];
+}
+
+
+-(void)notificarePushLib:(NotificarePushLib *)library  didFailToExecuteAction:(nonnull NSError *)error{
+
+    NSMutableDictionary * er = [NSMutableDictionary dictionary];
+    NSMutableDictionary * obj = [NSMutableDictionary dictionary];
+    [obj setObject:[NSString stringWithFormat:@"%li",(long)[error code]] forKey:@"code"];
+    [obj setObject:[NSString stringWithFormat:@"%@",[[error userInfo] objectForKey:NSLocalizedDescriptionKey]] forKey:@"message"];
+    
+    [er setObject:obj forKey:@"error"];
+    
+    [self fireEvent:@"action" withObject:er];
 }
 
 -(void)notificarePushLib:(NotificarePushLib *)library shouldPerformSelectorWithURL:(NSURL *)url{
