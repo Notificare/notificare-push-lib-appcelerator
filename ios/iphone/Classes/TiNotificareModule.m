@@ -235,26 +235,42 @@ enum {
 
 - (void)notificarePushLib:(NotificarePushLib *)library didChangeAccountNotification:(NSDictionary *)info{
 
-//    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-//    NotificareNXOAuth2Account * account = [[NotificarePushLib shared] account];
-//    NSMutableDictionary * act = [NSMutableDictionary dictionary];
-//    [act setValue:[[account accessToken] tokenType] forKey:@"tokenType"];
-//    [act setValue:[[account accessToken] accessToken] forKey:@"accessToken"];
-//    [act setValue:[[account accessToken] refreshToken] forKey:@"refreshToken"];
-//    [act setValue:[account userData] forKey:@"user"];
-//    [act setValue:[NSString stringWithFormat:@"%@",[[account accessToken] expiresAt]] forKey:@"expiresAt"];
-//    [trans setValue:act forKey:@"account"];
-//    [self fireEvent:@"account" withObject:trans];
+    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
+    NotificareNXOAuth2Account * account = [[NotificarePushLib shared] account];
+    NSMutableDictionary * act = [NSMutableDictionary dictionary];
+    [act setValue:[[account accessToken] tokenType] forKey:@"tokenType"];
+    [act setValue:[[account accessToken] accessToken] forKey:@"accessToken"];
+    [act setValue:[[account accessToken] refreshToken] forKey:@"refreshToken"];
+    [act setValue:[account userData] forKey:@"user"];
+    [act setValue:[NSString stringWithFormat:@"%@",[[account accessToken] expiresAt]] forKey:@"expiresAt"];
+    [trans setValue:act forKey:@"account"];
+    [self fireEvent:@"didChangeAccountNotification" withObject:trans];
+    
 }
 
 - (void)notificarePushLib:(NotificarePushLib *)library didFailToRequestAccessNotification:(NSError *)error{
 
-    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-    NSMutableDictionary * err = [NSMutableDictionary dictionary];
-    [err setObject:@"403" forKey:@"code"];
-    [err setObject:@"Invalid resource owner credentials" forKey:@"message"];
-    [trans setObject:err forKey:@"error"];
-    [self fireEvent:@"didFailToRequestAccessNotification" withObject:trans];
+    [self fireEvent:@"didFailToRequestAccessNotification" withObject:[self dictionaryFromError:error]];
+}
+
+
+- (void)notificarePushLib:(NotificarePushLib *)library didReceiveActivationToken:(NSString *)token{
+    
+    [[NotificarePushLib shared] validateAccount:token completionHandler:^(NSDictionary *info) {
+        
+         [self fireEvent:@"didValidateAccount" withObject:info];
+        
+    } errorHandler:^(NSError *error) {
+        
+        [self fireEvent:@"didFailToValidateAccount" withObject:[self dictionaryFromError:error]];
+        
+    }];
+    
+}
+
+- (void)notificarePushLib:(NotificarePushLib *)library didReceiveResetPasswordToken:(NSString *)token{
+    
+    [self fireEvent:@"didReceiveResetPasswordToken" withObject:@{@"token": token}];
 }
 
 
@@ -714,40 +730,7 @@ enum {
     
     NSURL * url = [NSURL URLWithString:arg];
     
-    if ([[url scheme] isEqualToString:[NSString stringWithFormat:@"nc%@",[[[NotificarePushLib shared] applicationInfo] objectForKey:@"_id"]]]) {
-        
-        //Check for the reset password
-        if ([url path] && [[url pathComponents] count] > 1 ) {
-            
-            if ([[[url pathComponents] objectAtIndex:1] isEqualToString:@"resetpassword"]) {
-
-                NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-                [trans setValue:[[url pathComponents] objectAtIndex:2] forKey:@"token"];
-                [self fireEvent:@"resetpassword" withObject:trans];
-                
-                
-            }
-            
-            if ([[[url pathComponents] objectAtIndex:1] isEqualToString:@"validate"]) {
-                
-                
-                [[NotificarePushLib shared] validateAccount:[[url pathComponents] objectAtIndex:2] completionHandler:^(NSDictionary *info) {
-                    
-                    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-                    [trans setValue:[[url pathComponents] objectAtIndex:2] forKey:@"success"];
-                    [self fireEvent:@"validate" withObject:trans];
-                    
-                } errorHandler:^(NSError *error) {
-                    
-                    NSMutableDictionary * trans = [NSMutableDictionary dictionary];
-                    [trans setValue:[error description] forKey:@"error"];
-                    [self fireEvent:@"validate" withObject:trans];
-                    
-                }];
-            }
-        }
-    }
-    
+    [[NotificarePushLib shared] handleOpenURL:url];
 }
 
 
