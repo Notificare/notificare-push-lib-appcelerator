@@ -146,46 +146,31 @@ enum {
 #pragma mark Notification Delegates
 -(void)notificarePushLib:(NotificarePushLib *)library willOpenNotification:(nonnull NotificareNotification *)notification{
     
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
-    
-    [self fireEvent:@"willOpenNotification" withObject:message];
+    [self fireEvent:@"willOpenNotification" withObject:[self dictionaryFromNotification:notification]];
     
 }
 
 -(void)notificarePushLib:(NotificarePushLib *)library didOpenNotification:(nonnull NotificareNotification *)notification{
     
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
-    
-    [self fireEvent:@"didOpenNotification" withObject:message];
+    [self fireEvent:@"didOpenNotification" withObject:[self dictionaryFromNotification:notification]];
     
 }
 
 -(void)notificarePushLib:(NotificarePushLib *)library didFailToOpenNotification:(nonnull NotificareNotification *)notification{
 
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
-    
-    [self fireEvent:@"didFailToOpenNotification" withObject:message];
+    [self fireEvent:@"didFailToOpenNotification" withObject:[self dictionaryFromNotification:notification]];
     
 }
 
 -(void)notificarePushLib:(NotificarePushLib *)library didCloseNotification:(nonnull NotificareNotification *)notification {
     
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
-    
-    [self fireEvent:@"didCloseNotification" withObject:message];
+    [self fireEvent:@"didCloseNotification" withObject:[self dictionaryFromNotification:notification]];
 }
 
 #pragma mark Action Delegates
 -(void)notificarePushLib:(NotificarePushLib *)library willExecuteAction:(nonnull NotificareNotification *)notification{
 
-    NSMutableDictionary * message = [NSMutableDictionary dictionary];
-    [message setObject:[self dictionaryFromNotification:notification] forKey:@"notification"];
-    
-    [self fireEvent:@"willExecuteAction" withObject:message];
+    [self fireEvent:@"willExecuteAction" withObject:[self dictionaryFromNotification:notification]];
     
 }
 

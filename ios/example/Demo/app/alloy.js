@@ -90,14 +90,12 @@ Ti.App.iOS.addEventListener('remotenotificationaction', function(e) {
 
 //Fired whenever a notification is opened, it can be used to refresh UI
 notificare.addEventListener('didOpenNotification', function(e) {
-	Ti.API.info("Notification: " + e.notification.id);
+	Ti.API.info(e);
 });
 
 //Fired whenever an action is executed, it can be used to refresh UI
-notificare.addEventListener('didExecuteAction', function(e){
-	
-	Ti.API.info(e);
-	 
+notificare.addEventListener('didExecuteAction', function(e){	
+	Ti.API.info(e);	 
 });
 
 //Fired whenever app is in foreground and in range of any of the beacons inserted in the current region
