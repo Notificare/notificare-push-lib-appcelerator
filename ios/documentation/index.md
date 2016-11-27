@@ -6,7 +6,7 @@ Titanium module for Notificare Mobile Marketing Platform. Before you start make 
 
 ## Usage
 
-See the sample app in example directory. For documentation please refer to https://docs.notifica.re/sdk/implementation/
+See the sample app in this repository: https://github.com/Notificare/notificare-demo-appcelerator. For documentation please refer to https://docs.notifica.re/sdk/implementation/
 
 
 ## Authors

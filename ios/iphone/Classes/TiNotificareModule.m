@@ -1070,16 +1070,25 @@ enum {
     
     id _out = nil;
     ENSURE_ARG_AT_INDEX(_out, arg, 3, KrollCallback);
-    NSString * dateString = (NSString*)arg[0];
-    NSNumber * skip = (NSNumber*)arg[1];
-    NSNumber * limit = (NSNumber*)arg[2];
+    
+    NSDate *sinceDate = nil;
+    if (arg[0] != nil) {
+        NSDate *sinceDate = (NSDate*)arg[0];
+    }
+    
+    NSNumber * skip = nil;
+    if (arg[1] != nil) {
+        skip = (NSNumber*)arg[1];
+    }
+    
+    NSNumber * limit = nil;
+    if (arg[2] != nil) {
+        limit = (NSNumber*)arg[2];
+    }
+    
+    
     KrollCallback *callback = (KrollCallback*)arg[3];
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss Z"];
-    NSDate *sinceDate = [dateFormatter dateFromString:dateString];
 
-    
     NSMutableDictionary * trans = [NSMutableDictionary dictionary];
     
     [[NotificarePushLib shared] fetchInbox:sinceDate skip:skip limit:limit completionHandler:^(NSDictionary *info) {
